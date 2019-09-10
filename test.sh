@@ -109,5 +109,5 @@ cwd=`pwd`
 cd $log_dir
 git add *.log
 git commit -m "$log_base"
-git push origin master -q
+git push fenix-mobile master -q
 cd $cwd
