@@ -17,14 +17,14 @@ function download_apk {
   result=0
 
   # If the apk already exists, don't bother getting it again.
-  if [ -e $output_file_path ]; then
+  if [ -e ${output_file_path} ]; then
     echo "Not downloading a new apk; using existing."
     return 0
   fi
 
-  apk_download_url=`echo $apk_url_template | sed "s/DATE/${date_to_fetch}/g"`;
+  apk_download_url=`echo ${apk_url_template} | sed "s/DATE/${date_to_fetch}/g"`;
   echo "Downloading apk."
-  curl -fsL --create-dirs --output $output_file_path $apk_download_url 2>&1 > /dev/null
+  curl -fsL --create-dirs --output ${output_file_path} ${apk_download_url} 2>&1 > /dev/null
   result=$?
   echo "Done downloading apk."
   return ${result}
@@ -32,11 +32,11 @@ function download_apk {
 
 function maybe_create_dir {
   filedir=$1
-  mkdir -p $filedir >/dev/null 2>&1
+  mkdir -p ${filedir} >/dev/null 2>&1
 }
 
 function maybe_create_file {
   filepath=$1
-  maybe_create_dir $(dirname $filepath)
-  touch $filepath
+  maybe_create_dir $(dirname ${filepath})
+  touch ${filepath}
 }
