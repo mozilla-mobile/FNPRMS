@@ -1,55 +1,22 @@
 #!/usr/bin/env bash
 
-tests=5
-ADB="/home/hawkinsw/Android/Sdk/platform-tools/adb"
-homeactivity_start_command='am start-activity org.mozilla.fenix.nightly/org.mozilla.fenix.HomeActivity'
-applink_start_command='am start-activity -t "text/html" -d "about:blank" -a android.intent.action.VIEW org.mozilla.fenix.nightly/org.mozilla.fenix.IntentReceiverActivity'
-apk_url_template="https://index.taskcluster.net/v1/task/project.mobile.fenix.v2.nightly.DATE.latest/artifacts/public/build/armeabi-v7a/geckoNightly/target.apk"
-log_dir=/home/hawkinsw/run_logs/
+iamhere=${BASH_SOURCE%/*}
+iwashere=`pwd`
+cd ${iamhere}
 
-function download_apk { 
-  date_to_fetch=`date +"%Y.%-m.%-d"`;
-  output_file_path=`printf "%s/%s/%s" \`pwd\` \`date +"%Y/%-m/%-d"\` nightly.apk`;
-  echo $output_file_path
-
-  # If the apk already exists, don't bother getting it again.
-  if [ -e $output_file_path ]; then
-    return 0
-  fi
-
-  apk_download_url=`echo $apk_url_template | sed "s/DATE/${date_to_fetch}/g"`;
-  curl -fsL --create-dirs --output $output_file_path $apk_download_url 2>&1 > /dev/null
-  return $?
-}
-
-
-function maybe_create_dir {
-
-  filedir=$1
-
-  mkdir -p $filedir >/dev/null 2>&1
-}
-
-function maybe_create_file {
-  filepath=$1
-  another=0
-
-  maybe_create_dir $(dirname $filepath)
-  touch $filepath
-}
+. common.sh
 
 function run_test {
   apk=$1
   shift
-  tag=$1
+  log_file=$1
   shift
   start_command=$1
+  shift
+  tests=$1
 
-  log_output_file="run_logs/${tag}.log"
-
-  rm -f $log_output_file > /dev/null 2>&1
-
-  maybe_create_file $log_output_file
+  rm -f ${log_file} > /dev/null 2>&1
+  maybe_create_file ${log_file}
 
   $ADB logcat --clear
   for i in `seq $tests`; do
@@ -58,7 +25,7 @@ function run_test {
       $ADB install -t $apk
 
       if [ $? -ne 0 ]; then
-        echo 'Error occurred installing the APK!' > $log_output_file
+        echo 'Error occurred installing the APK!' > ${log_file}
       fi
     fi
 
@@ -70,22 +37,33 @@ function run_test {
     $ADB shell "am force-stop org.mozilla.fenix.nightly"
   done;
 
-  $ADB logcat -d >> $log_output_file 2>&1
+  $ADB logcat -d >> ${log_file} 2>&1
 }
 
-log_base=`date +"%Y.%-m.%-d"`
+homeactivity_start_command='am start-activity org.mozilla.fenix.nightly/org.mozilla.fenix.HomeActivity'
+applink_start_command='am start-activity -t "text/html" -d "about:blank" -a android.intent.action.VIEW org.mozilla.fenix.nightly/org.mozilla.fenix.IntentReceiverActivity'
+apk_url_template="https://index.taskcluster.net/v1/task/project.mobile.fenix.v2.nightly.DATE.latest/artifacts/public/build/armeabi-v7a/geckoNightly/target.apk"
+log_dir=/home/hawkinsw/run_logs/
+test_date=`date +"%Y.%-m.%-d"`
+log_base=${test_date}
 run_log="${log_dir}/${log_base}.log"
+downloaded_apk_path=`printf "%s/%s/" \`pwd\` \`date +"%Y/%-m/%-d"\``;
+downloaded_apk_file=`printf "%s/%s" ${downloaded_apk_path} nightly.apk`;
+apk_downloaded=0
+apk_download_attempts=5
 
 maybe_create_dir $log_dir
 maybe_create_file $run_log
+maybe_create_dir $downloaded_apk_path
+
+maybe_create_file "${log_dir}/${log_base}-ha.log"
+maybe_create_file "${log_dir}/${log_base}-al.log"
 
 {
-  apk_downloaded=0
-  for i in {1..5}; do
-    downloaded_apk_location=$(download_apk)
+  for i in `seq 1 ${apk_download_attempts}`; do
+    download_apk $apk_url_template $test_date $downloaded_apk_file
     result=$?
     if [ $result -eq 0 ]; then
-      echo "Downloaded the nightly APK."
       apk_downloaded=1
       break
     fi
@@ -93,21 +71,21 @@ maybe_create_file $run_log
   done
 
   if [ $apk_downloaded -eq 0 ]; then
-    echo "Failed to download an APK."
-    maybe_create_file "${log_dir}/${log_base}-ha.log"
-    maybe_create_file "${log_dir}/${log_base}-al.log"
-    echo "Failed to download an APK." > "${log_dir}/${log_base}-ha.log"
-    echo "Failed to download an APK." > "${log_dir}/${log_base}-al.log"
-    exit
+    echo "Error: Failed to download an APK."
+  else
+    echo "Running tests"
+    run_test $downloaded_apk_file "${log_dir}/${log_base}-ha.log" "$homeactivity_start_command" 5
+    run_test $downloaded_apk_file "${log_dir}/${log_base}-al.log" "$applink_start_command" 5
   fi
-
-  run_test $downloaded_apk_location "${log_base}-ha" "$homeactivity_start_command"
-  run_test $downloaded_apk_location "${log_base}-al" "$applink_start_command"
-} > $run_log 2>&1
+} >> $run_log 2>&1
 
 cwd=`pwd`
 cd $log_dir
 git add *.log
-git commit -m "$log_base"
+git commit -m "${log_base} test"
 git push fenix-mobile master -q
 cd $cwd
+
+sweep_files_older_than 3 ${log_dir}
+
+cd ${iwashere}

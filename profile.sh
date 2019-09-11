@@ -1,10 +1,8 @@
 #!/usr/bin/env bash
 
-ADB="/home/hawkinsw/Android/Sdk/platform-tools/adb"
-homeactivity_start_command='am start-activity --start-profiler PROFILE_FILE --streaming org.mozilla.fenix.performancetest/org.mozilla.fenix.HomeActivity'
-applink_start_command='am start-activity -t "text/html" -d "about:blank" -a android.intent.action.VIEW --start-profiler PROFILE_FILE --streaming org.mozilla.fenix.performancetest/org.mozilla.fenix.IntentReceiverActivity'
-apk_url_template="https://index.taskcluster.net/v1/task/project.mobile.fenix.v2.performance-test.DATE.latest/artifacts/public/build/armeabi-v7a/geckoNightly/target.apk"
-log_dir=/home/hawkinsw/run_logs/
+iamhere=${BASH_SOURCE%/*}
+iwashere=`pwd`
+cd ${iamhere}
 
 . common.sh
 
@@ -20,7 +18,7 @@ function generate_profile {
 
   start_command=`echo ${start_command_template} | sed "s/PROFILE_FILE/${escaped_remote_profile_file}/"`
 
-  maybe_create_dir $profile_file
+  maybe_create_dir ${profile_file_path}
 
   $ADB shell rm -f ${remote_profile_file}
   $ADB uninstall org.mozilla.fenix.nightly > /dev/null 2>&1
@@ -28,7 +26,7 @@ function generate_profile {
   $ADB install -t $apk
 
   if [ $? -ne 0 ]; then
-    echo 'Error occurred installing the APK!' > $log_output_file
+    echo "Error: Could not install the APK!"
     return
   fi
 
@@ -48,26 +46,33 @@ function generate_profile {
   $ADB pull ${remote_profile_file} ${profile_file_path} > /dev/null 2>&1
 }
 
-log_base=`date +"%Y.%-m.%-d"`
+homeactivity_start_command='am start-activity --start-profiler PROFILE_FILE --streaming org.mozilla.fenix.performancetest/org.mozilla.fenix.HomeActivity'
+applink_start_command='am start-activity -t "text/html" -d "about:blank" -a android.intent.action.VIEW --start-profiler PROFILE_FILE --streaming org.mozilla.fenix.performancetest/org.mozilla.fenix.IntentReceiverActivity'
+apk_url_template="https://index.taskcluster.net/v1/task/project.mobile.fenix.v2.performance-test.DATE.latest/artifacts/public/build/armeabi-v7a/geckoNightly/target.apk"
+date=`date +"%Y.%-m.%-d"`
+log_base=${date}
+log_dir=/home/hawkinsw/run_logs/
 run_log="${log_dir}/${log_base}.log"
 ha_profile_file_path="${log_dir}/${log_base}-ha-trace/"
 al_profile_file_path="${log_dir}/${log_base}-al-trace/"
-download_apk_path=`printf "%s/%s/" \`pwd\` \`date +"%Y/%-m/%-d"\``;
-download_apk_file=`printf "%s/%s" ${download_apk_path} profile-nightly.apk`;
+downloaded_apk_path=`printf "%s/%s/" \`pwd\` \`date +"%Y/%-m/%-d"\``;
+downloaded_apk_file=`printf "%s/%s" ${downloaded_apk_path} profile-nightly.apk`;
+apk_download_attempts=5
+apk_downloaded=0
 
 maybe_create_dir $log_dir
+maybe_create_file $run_log
+maybe_create_file "${log_dir}/${log_base}-ha.log"
+maybe_create_file "${log_dir}/${log_base}-al.log"
 maybe_create_dir $al_profile_file_path
 maybe_create_dir $ha_profile_file_path
-maybe_create_file $run_log
-maybe_create_dir $download_apk_path
+maybe_create_dir $downloaded_apk_path
 
 {
-  apk_downloaded=0
-  for i in {1..5}; do
-    download_apk ${apk_url_template} ${download_apk_file}
+  for i in `seq 1 ${apk_download_attempts}`; do
+    download_apk ${apk_url_template} ${date} ${downloaded_apk_file}
     result=$?
     if [ $result -eq 0 ]; then
-      echo "Downloaded the nightly APK."
       apk_downloaded=1
       break
     fi
@@ -76,20 +81,23 @@ maybe_create_dir $download_apk_path
 
   if [ $apk_downloaded -eq 0 ]; then
     echo "Failed to download an APK."
-    maybe_create_file "${log_dir}/${log_base}-ha.log"
-    maybe_create_file "${log_dir}/${log_base}-al.log"
-    echo "Failed to download an APK." > "${log_dir}/${log_base}-ha.log"
-    echo "Failed to download an APK." > "${log_dir}/${log_base}-al.log"
-    exit
+  else
+    echo "Downloaded the nightly APK."
+    echo "Profiling..."
+    generate_profile "$downloaded_apk_file" "${ha_profile_file_path}" "$homeactivity_start_command"
+    generate_profile "$downloaded_apk_file" "${al_profile_file_path}" "$applink_start_command"
+    echo "Done profiling..."
   fi
+} >> $run_log 2>&1
 
-  generate_profile "$download_apk_file" "${ha_profile_file_path}" "$homeactivity_start_command"
-  generate_profile "$download_apk_file" "${al_profile_file_path}" "$applink_start_command"
-}
+cwd=`pwd`
+cd $log_dir
+git add *.log
+git add `find . -name '*.trace'`
+git commit -m "${log_base} profile"
+git push fenix-mobile master -q
+cd $cwd
 
-#cwd=`pwd`
-#cd $log_dir
-#git add *.log
-#git commit -m "$log_base"
-#git push origin master -q
-#cd $cwd
+sweep_files_older_than 3 ${log_dir}
+
+cd ${iwashere}
