@@ -19,18 +19,18 @@ function run_test {
   maybe_create_file ${log_file}
 
   $ADB logcat --clear
-  for i in `seq $tests`; do
+  for i in `seq ${tests}`; do
     if [ $i -eq 1 ]; then
       $ADB uninstall org.mozilla.fenix.nightly > /dev/null 2>&1
-      $ADB install -t $apk
+      $ADB install -t ${apk}
 
       if [ $? -ne 0 ]; then
         echo 'Error occurred installing the APK!' > ${log_file}
       fi
     fi
 
-    echo "Starting by using $start_command"
-    $ADB shell "$start_command"
+    echo "Starting by using ${start_command}"
+    $ADB shell "${start_command}"
     # sleep here in case it takes a while for the app to start.
     # We don't want to stop it before it starts.
     sleep 10 
@@ -52,39 +52,39 @@ downloaded_apk_file=`printf "%s/%s" ${downloaded_apk_path} nightly.apk`;
 apk_downloaded=0
 apk_download_attempts=5
 
-maybe_create_dir $log_dir
-maybe_create_file $run_log
-maybe_create_dir $downloaded_apk_path
+maybe_create_dir ${log_dir}
+maybe_create_file ${run_log}
+maybe_create_dir ${downloaded_apk_path}
 
 maybe_create_file "${log_dir}/${log_base}-ha.log"
 maybe_create_file "${log_dir}/${log_base}-al.log"
 
 {
   for i in `seq 1 ${apk_download_attempts}`; do
-    download_apk $apk_url_template $test_date $downloaded_apk_file
+    download_apk ${apk_url_template} ${test_date} ${downloaded_apk_file}
     result=$?
-    if [ $result -eq 0 ]; then
+    if [ ${result} -eq 0 ]; then
       apk_downloaded=1
       break
     fi
     echo "Trying again to download the nightly apk (error ${result})."
   done
 
-  if [ $apk_downloaded -eq 0 ]; then
+  if [ ${apk_downloaded} -eq 0 ]; then
     echo "Error: Failed to download an APK."
   else
     echo "Running tests"
-    run_test $downloaded_apk_file "${log_dir}/${log_base}-ha.log" "$homeactivity_start_command" 5
-    run_test $downloaded_apk_file "${log_dir}/${log_base}-al.log" "$applink_start_command" 5
+    run_test ${downloaded_apk_file} "${log_dir}/${log_base}-ha.log" "${homeactivity_start_command}" 5
+    run_test ${downloaded_apk_file} "${log_dir}/${log_base}-al.log" "${applink_start_command}" 5
   fi
-} >> $run_log 2>&1
+} >> ${run_log} 2>&1
 
 cwd=`pwd`
-cd $log_dir
+cd ${log_dir}
 git add *.log
 git commit -m "${log_base} test"
 git push fenix-mobile master -q
-cd $cwd
+cd ${cwd}
 
 sweep_files_older_than 3 ${log_dir}
 
