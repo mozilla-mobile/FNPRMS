@@ -23,15 +23,15 @@ function generate_profile {
   $ADB shell rm -f ${remote_profile_file}
   $ADB uninstall org.mozilla.fenix.nightly > /dev/null 2>&1
   $ADB uninstall org.mozilla.fenix.performancetest > /dev/null 2>&1
-  $ADB install -t $apk
+  $ADB install -t ${apk}
 
   if [ $? -ne 0 ]; then
     echo "Error: Could not install the APK!"
     return
   fi
 
-  echo "Profiling by using $start_command"
-  $ADB shell "$start_command"
+  echo "Profiling by using ${start_command}"
+  $ADB shell "${start_command}"
 
   # sleep here in case it takes a while for the app to start.
   # We don't want to stop it before it starts.
@@ -60,13 +60,13 @@ downloaded_apk_file=`printf "%s/%s" ${downloaded_apk_path} profile-nightly.apk`;
 apk_download_attempts=5
 apk_downloaded=0
 
-maybe_create_dir $log_dir
-maybe_create_file $run_log
+maybe_create_dir ${log_dir}
+maybe_create_file ${run_log}
 maybe_create_file "${log_dir}/${log_base}-ha.log"
 maybe_create_file "${log_dir}/${log_base}-al.log"
-maybe_create_dir $al_profile_file_path
-maybe_create_dir $ha_profile_file_path
-maybe_create_dir $downloaded_apk_path
+maybe_create_dir ${al_profile_file_path}
+maybe_create_dir ${ha_profile_file_path}
+maybe_create_dir ${downloaded_apk_path}
 
 {
   for i in `seq 1 ${apk_download_attempts}`; do
@@ -84,19 +84,19 @@ maybe_create_dir $downloaded_apk_path
   else
     echo "Downloaded the nightly APK."
     echo "Profiling..."
-    generate_profile "$downloaded_apk_file" "${ha_profile_file_path}" "$homeactivity_start_command"
-    generate_profile "$downloaded_apk_file" "${al_profile_file_path}" "$applink_start_command"
+    generate_profile "${downloaded_apk_file}" "${ha_profile_file_path}" "${homeactivity_start_command}"
+    generate_profile "${downloaded_apk_file}" "${al_profile_file_path}" "${applink_start_command}"
     echo "Done profiling..."
   fi
-} >> $run_log 2>&1
+} >> ${run_log} 2>&1
 
 cwd=`pwd`
-cd $log_dir
+cd ${log_dir}
 git add *.log
 git add `find . -name '*.trace'`
 git commit -m "${log_base} profile"
 git push fenix-mobile master -q
-cd $cwd
+cd ${cwd}
 
 sweep_files_older_than 3 ${log_dir}
 
