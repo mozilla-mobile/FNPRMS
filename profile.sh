@@ -35,7 +35,7 @@ function generate_profile {
 
   # sleep here in case it takes a while for the app to start.
   # We don't want to stop it before it starts.
-  sleep 10
+  sleep 30
 
   echo "Stopping the profiler and the process."
   $ADB shell "am profile stop org.mozilla.fenix.performancetest"
@@ -46,8 +46,10 @@ function generate_profile {
   $ADB pull ${remote_profile_file} ${profile_file_path} > /dev/null 2>&1
 }
 
-homeactivity_start_command='am start-activity --start-profiler PROFILE_FILE --streaming org.mozilla.fenix.performancetest/org.mozilla.fenix.HomeActivity'
-applink_start_command='am start-activity -t "text/html" -d "about:blank" -a android.intent.action.VIEW --start-profiler PROFILE_FILE --streaming org.mozilla.fenix.performancetest/org.mozilla.fenix.IntentReceiverActivity'
+#homeactivity_start_command='am start-activity --start-profiler PROFILE_FILE --streaming org.mozilla.fenix.performancetest/org.mozilla.fenix.HomeActivity'
+homeactivity_start_command='am start-activity --start-profiler PROFILE_FILE org.mozilla.fenix.performancetest/org.mozilla.fenix.HomeActivity'
+#applink_start_command='am start-activity -t "text/html" -d "about:blank" -a android.intent.action.VIEW --start-profiler PROFILE_FILE --streaming org.mozilla.fenix.performancetest/org.mozilla.fenix.IntentReceiverActivity'
+applink_start_command='am start-activity -t "text/html" -d "about:blank" -a android.intent.action.VIEW --start-profiler PROFILE_FILE org.mozilla.fenix.performancetest/org.mozilla.fenix.IntentReceiverActivity'
 apk_url_template="https://index.taskcluster.net/v1/task/project.mobile.fenix.v2.performance-test.DATE.latest/artifacts/public/build/armeabi-v7a/geckoNightly/target.apk"
 date=`date +"%Y.%m.%-d"`
 log_base=${date}
