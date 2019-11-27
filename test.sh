@@ -74,8 +74,8 @@ maybe_create_file "${log_dir}/${log_base}-al.log"
     echo "Error: Failed to download an APK."
   else
     echo "Running tests"
-    run_test ${downloaded_apk_file} "${log_dir}/${log_base}-ha.log" "${homeactivity_start_command}" 5
-    run_test ${downloaded_apk_file} "${log_dir}/${log_base}-al.log" "${applink_start_command}" 5
+    run_test ${downloaded_apk_file} "${log_dir}/${log_base}-ha.log" "${homeactivity_start_command}" 100
+    run_test ${downloaded_apk_file} "${log_dir}/${log_base}-al.log" "${applink_start_command}" 100
   fi
 } >> ${run_log} 2>&1
 
