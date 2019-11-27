@@ -81,11 +81,11 @@ maybe_create_file "${log_dir}/${log_base}-al.log"
 
 cwd=`pwd`
 cd ${log_dir}
+sweep_files_older_than 30 ${log_dir}
 git add *.log
 git commit -m "${log_base} test"
 git push fenix-mobile master -q
 cd ${cwd}
 
-sweep_files_older_than 3 ${log_dir}
 
 cd ${iwashere}

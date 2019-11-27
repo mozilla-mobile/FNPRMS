@@ -5,7 +5,10 @@ function sweep_files_older_than {
   shift
   path=$1
 
-  #find . -name '*' -and -type f -and -true -and -ctime +30 | grep -v git
+  to_delete=`find $path -name '*' -and -type f -and -true -and -ctime +$days | grep -v git`
+  for i in ${to_delete}; do
+    git rm ${i}
+  done
 }
 
 function download_apk { 
