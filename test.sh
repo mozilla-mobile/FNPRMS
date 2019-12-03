@@ -21,7 +21,7 @@ function run_test {
   $ADB logcat --clear
   for i in `seq ${tests}`; do
     if [ $i -eq 1 ]; then
-      $ADB uninstall org.mozilla.fenix.nightly > /dev/null 2>&1
+      $ADB uninstall org.mozilla.fenix.performancetest > /dev/null 2>&1
       $ADB install -t ${apk}
 
       if [ $? -ne 0 ]; then
@@ -34,15 +34,15 @@ function run_test {
     # sleep here in case it takes a while for the app to start.
     # We don't want to stop it before it starts.
     sleep 10 
-    $ADB shell "am force-stop org.mozilla.fenix.nightly"
+    $ADB shell "am force-stop org.mozilla.fenix.performancetest"
   done;
 
   $ADB logcat -d >> ${log_file} 2>&1
 }
 
-homeactivity_start_command='am start-activity org.mozilla.fenix.nightly/org.mozilla.fenix.HomeActivity'
-applink_start_command='am start-activity -t "text/html" -d "about:blank" -a android.intent.action.VIEW org.mozilla.fenix.nightly/org.mozilla.fenix.IntentReceiverActivity'
-apk_url_template="https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/project.mobile.fenix.v2.nightly.DATE.latest/artifacts/public/build/armeabi-v7a/geckoNightly/target.apk"
+homeactivity_start_command='am start-activity org.mozilla.fenix.performancetest/org.mozilla.fenix.HomeActivity'
+applink_start_command='am start-activity -t "text/html" -d "about:blank" -a android.intent.action.VIEW org.mozilla.fenix.performancetest/org.mozilla.fenix.IntentReceiverActivity'
+apk_url_template="https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/project.mobile.fenix.v2.performance-test.DATE.latest/artifacts/public/build/armeabi-v7a/geckoNightly/target.apk"
 log_dir=/home/hawkinsw/run_logs/
 test_date=`date +"%Y.%m.%d"`
 log_base=${test_date}

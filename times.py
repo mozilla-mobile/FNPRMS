@@ -6,8 +6,8 @@ from typing import List, MutableMapping
 import os
 import argparse
 
-DisplayedLinesRe = re.compile(".*ActivityManager: Displayed org.mozilla.fenix.nightly/org.mozilla.fenix.HomeActivity.*$")
-DisplayedLinesStripToTime = re.compile(".*ActivityManager: Displayed org.mozilla.fenix.nightly/org.mozilla.fenix.HomeActivity: \+")
+DisplayedLinesRe = re.compile(".*ActivityManager: Displayed org.mozilla.fenix.performancetest/org.mozilla.fenix.HomeActivity.*$")
+DisplayedLinesStripToTime = re.compile(".*ActivityManager: Displayed org.mozilla.fenix.performancetest/org.mozilla.fenix.HomeActivity: \+")
 DisplayedLinesStripFromTime = re.compile(" .*$")
 DisplayedLinesStripMs = re.compile("ms")
 DisplayedLinesSubSeconds = re.compile("s")

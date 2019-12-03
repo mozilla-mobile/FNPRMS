@@ -47,10 +47,10 @@ function generate_profile {
 }
 
 #homeactivity_start_command='am start-activity --start-profiler PROFILE_FILE --streaming org.mozilla.fenix.performancetest/org.mozilla.fenix.HomeActivity'
-homeactivity_start_command='am start-activity --start-profiler PROFILE_FILE org.mozilla.fenix.performancetest/org.mozilla.fenix.HomeActivity'
+homeactivity_start_command='am start-activity -W --start-profiler PROFILE_FILE org.mozilla.fenix.performancetest/org.mozilla.fenix.HomeActivity'
 #applink_start_command='am start-activity -t "text/html" -d "about:blank" -a android.intent.action.VIEW --start-profiler PROFILE_FILE --streaming org.mozilla.fenix.performancetest/org.mozilla.fenix.IntentReceiverActivity'
-applink_start_command='am start-activity -t "text/html" -d "about:blank" -a android.intent.action.VIEW --start-profiler PROFILE_FILE org.mozilla.fenix.performancetest/org.mozilla.fenix.IntentReceiverActivity'
-apk_url_template="https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/project.mobile.fenix.v2.nightly.DATE.latest/artifacts/public/build/armeabi-v7a/geckoNightly/target.apk"
+applink_start_command='am start-activity -W -t "text/html" -d "about:blank" -a android.intent.action.VIEW --start-profiler PROFILE_FILE org.mozilla.fenix.performancetest/org.mozilla.fenix.IntentReceiverActivity'
+apk_url_template="https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/project.mobile.fenix.v2.performance-test.DATE.latest/artifacts/public/build/armeabi-v7a/geckoNightly/target.apk"
 date=`date +"%Y.%m.%d"`
 log_base=${date}
 log_dir=/home/hawkinsw/run_logs/
