@@ -25,6 +25,8 @@ function run_test {
   $ADB shell "am kill-all"
 
   $ADB logcat --clear
+  $ADB logcat -G 1M
+
   for i in `seq ${tests}`; do
     if [ $i -eq 1 ]; then
       $ADB uninstall ${package_name} > /dev/null 2>&1

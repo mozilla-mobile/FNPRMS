@@ -22,7 +22,11 @@ function run_test {
   # this to try to eliminate noise.
   $ADB shell "am kill-all"
 
+  # Clear the log buffer on the device and reset its size to 1M
+  # so we are sure to get all the results.
   $ADB logcat --clear
+  $ADB logcat -G 1M
+
   for i in `seq ${tests}`; do
     if [ $i -eq 1 ]; then
       $ADB uninstall org.mozilla.fenix.performancetest > /dev/null 2>&1
