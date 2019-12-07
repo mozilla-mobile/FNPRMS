@@ -38,14 +38,13 @@ function run_test {
     fi
 
     echo "Starting by using ${start_command}"
+
+    $ADB shell "${start_command}"
     # sleep here in case it takes a while for the app to start.
     # We don't want to stop it before it starts.
+    sleep 5
+    $ADB shell "am force-stop ${package_name}"
 
-    for i in `seq 3`; do
-      $ADB shell "${start_command}"
-      sleep 5 
-      $ADB shell "am force-stop ${package_name}"
-    done
   done;
 
   $ADB logcat -d >> ${log_file} 2>&1
