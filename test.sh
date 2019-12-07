@@ -18,6 +18,10 @@ function run_test {
   rm -f ${log_file} > /dev/null 2>&1
   maybe_create_file ${log_file}
 
+  # This will clear all processes that are 'safe to kill'. Do
+  # this to try to eliminate noise.
+  $ADB shell "am kill-all"
+
   $ADB logcat --clear
   for i in `seq ${tests}`; do
     if [ $i -eq 1 ]; then
