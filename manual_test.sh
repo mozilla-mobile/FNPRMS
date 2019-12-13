@@ -7,50 +7,6 @@ cd ${iamhere}
 
 . common.sh
 
-function run_test {
-  apk=$1
-  shift
-  log_file=$1
-  shift
-  package_name=$1
-  shift
-  start_command=$1
-  shift
-  tests=$1
-
-  rm -f ${log_file} > /dev/null 2>&1
-  maybe_create_file ${log_file}
-
-  # This will clear all processes that are 'safe to kill'. Do
-  # this to try to eliminate noise.
-  $ADB shell "am kill-all"
-
-  $ADB logcat --clear
-  $ADB logcat -G 1M
-
-  for i in `seq ${tests}`; do
-    if [ $i -eq 1 ]; then
-      $ADB uninstall ${package_name} > /dev/null 2>&1
-      $ADB install -t ${apk}
-
-      if [ $? -ne 0 ]; then
-        echo 'Error occurred installing the APK!' > ${log_file}
-      fi
-    fi
-
-    echo "Starting by using ${start_command}"
-
-    $ADB shell "${start_command}"
-    # sleep here in case it takes a while for the app to start.
-    # We don't want to stop it before it starts.
-    sleep 5
-    $ADB shell "am force-stop ${package_name}"
-
-  done;
-
-  $ADB logcat -d >> ${log_file} 2>&1
-}
-
 apk_file=$1
 shift
 package_name=$1
@@ -70,8 +26,8 @@ run_log="${log_dir}/${log_base}.log"
 
 maybe_create_dir ${log_dir}
 
-maybe_create_file "${log_dir}/${log_base}-al.log"
+maybe_create_file "${log_dir}/${log_base}-ha.log"
 
-run_test ${apk_file} "${log_dir}/${log_base}-al.log" "${package_name}" "${start_command}" 100
+run_test ${apk_file} "${log_dir}/${log_base}-ha.log" "${package_name}" "${start_command}" 100
 
 cd ${iwashere}
