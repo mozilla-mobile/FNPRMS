@@ -101,6 +101,4 @@ git commit -m "${log_base} profile"
 git push fenix-mobile master -q
 cd ${cwd}
 
-sweep_files_older_than 3 ${log_dir}
-
 cd ${iwashere}
