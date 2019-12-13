@@ -7,48 +7,6 @@ cd ${iamhere}
 
 . common.sh
 
-function run_test {
-  apk=$1
-  shift
-  log_file=$1
-  shift
-  start_command=$1
-  shift
-  tests=$1
-
-  rm -f ${log_file} > /dev/null 2>&1
-  maybe_create_file ${log_file}
-
-  # This will clear all processes that are 'safe to kill'. Do
-  # this to try to eliminate noise.
-  $ADB shell "am kill-all"
-
-  # Clear the log buffer on the device and reset its size to 1M
-  # so we are sure to get all the results.
-  $ADB logcat --clear
-  $ADB logcat -G 1M
-
-  for i in `seq ${tests}`; do
-    if [ $i -eq 1 ]; then
-      $ADB uninstall org.mozilla.fenix.performancetest > /dev/null 2>&1
-      $ADB install -t ${apk}
-
-      if [ $? -ne 0 ]; then
-        echo 'Error occurred installing the APK!' > ${log_file}
-      fi
-    fi
-
-    echo "Starting by using ${start_command}"
-    $ADB shell "${start_command}"
-    # sleep here in case it takes a while for the app to start.
-    # We don't want to stop it before it starts.
-    sleep 10 
-    $ADB shell "am force-stop org.mozilla.fenix.performancetest"
-  done;
-
-  $ADB logcat -d >> ${log_file} 2>&1
-}
-
 homeactivity_start_command='am start-activity org.mozilla.fenix.performancetest/org.mozilla.fenix.HomeActivity'
 applink_start_command='am start-activity -t "text/html" -d "about:blank" -a android.intent.action.VIEW org.mozilla.fenix.performancetest/org.mozilla.fenix.IntentReceiverActivity'
 apk_url_template="https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/project.mobile.fenix.v2.performance-test.DATE.latest/artifacts/public/build/armeabi-v7a/geckoNightly/target.apk"
@@ -83,8 +41,8 @@ maybe_create_file "${log_dir}/${log_base}-al.log"
     echo "Error: Failed to download an APK."
   else
     echo "Running tests"
-    run_test ${downloaded_apk_file} "${log_dir}/${log_base}-ha.log" "${homeactivity_start_command}" 100
-    run_test ${downloaded_apk_file} "${log_dir}/${log_base}-al.log" "${applink_start_command}" 100
+    run_test ${downloaded_apk_file} "${log_dir}/${log_base}-ha.log" "org.mozilla.fenix.performancetest" "${homeactivity_start_command}" 100
+    run_test ${downloaded_apk_file} "${log_dir}/${log_base}-al.log" "org.mozilla.fenix.performancetest" "${applink_start_command}" 100
   fi
 } >> ${run_log} 2>&1
 
