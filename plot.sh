@@ -2,10 +2,10 @@
 
 iamhere=${BASH_SOURCE%/*}
 iwashere=`pwd`
+iamhere=${iamhere/./${iwashere}}
 cd ${iamhere}
 
 . common.sh
-
 
 log_dir=/home/hawkinsw/run_logs/
 

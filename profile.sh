@@ -2,6 +2,7 @@
 
 iamhere=${BASH_SOURCE%/*}
 iwashere=`pwd`
+iamhere=${iamhere/./${iwashere}}
 cd ${iamhere}
 
 . common.sh
