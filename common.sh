@@ -83,7 +83,7 @@ function run_test {
   # Clearing the log here so that we don't record the time of the
   # first start (above)
   $ADB logcat --clear
-  $ADB logcat -G 1M
+  $ADB logcat -G 2M
 
   for i in `seq ${tests}`; do
     echo "Starting by using ${start_command}"
