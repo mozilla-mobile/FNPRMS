@@ -54,10 +54,16 @@ function run_test {
   start_command=$1
   shift
   tests=$1
+  shift
+  finishonboarding=$1
+
+  warmup_start_command=${start_command}
+  if [ "Xtrue" == "X${finishonboarding}" ]; then
+    warmup_start_command=`echo ${start_command} | sed 's/start-activity/start-activity --ez finishonboarding true/'`
+  fi
 
   rm -f ${log_file} > /dev/null 2>&1
   maybe_create_file ${log_file}
-
 
   # do the apk installation.
   $ADB uninstall ${package_name} > /dev/null 2>&1
@@ -69,7 +75,7 @@ function run_test {
   fi
 
   # Now, do a single start to get all that stuff out of the way.
-  $ADB shell "${start_command}"
+  $ADB shell "${warmup_start_command}"
   # sleep here in case it takes a while for the app to start.
   # We don't want to stop it before it starts.
   sleep 5

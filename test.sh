@@ -25,6 +25,7 @@ maybe_create_dir ${downloaded_apk_path}
 
 maybe_create_file "${log_dir}/${log_base}-ha.log"
 maybe_create_file "${log_dir}/${log_base}-al.log"
+maybe_create_file "${log_dir}/${log_base}-hanoob.log"
 
 {
   for i in `seq 1 ${apk_download_attempts}`; do
@@ -43,6 +44,7 @@ maybe_create_file "${log_dir}/${log_base}-al.log"
     echo "Running tests"
     run_test ${downloaded_apk_file} "${log_dir}/${log_base}-ha.log" "org.mozilla.fenix.performancetest" "${homeactivity_start_command}" 100
     run_test ${downloaded_apk_file} "${log_dir}/${log_base}-al.log" "org.mozilla.fenix.performancetest" "${applink_start_command}" 100
+    run_test ${downloaded_apk_file} "${log_dir}/${log_base}-hanoob.log" "org.mozilla.fenix.performancetest" "${homeactivity_start_command}" 100 true
   fi
 } >> ${run_log} 2>&1
 

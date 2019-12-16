@@ -16,12 +16,15 @@ RunlogPathStripTagExtension = re.compile("-.*.log$")
 class Type(Enum):
   HA = 1
   AL = 2
+  HANOOB = 3
 
   def __str__(self):
     if self == Type.HA:
       return "ha"
     elif self == Type.AL:
       return "al"
+    elif self == Type.HANOOB:
+      return "hanoob"
     else:
       return ""
 
@@ -123,4 +126,5 @@ if __name__=="__main__":
 
   calculate(input_dir, Type.HA, output_dir + "/" + "ha-results.csv")
   calculate(input_dir, Type.AL, output_dir + "/" + "al-results.csv")
+  calculate(input_dir, Type.HANOOB, output_dir + "/" + "hanoob-results.csv")
   pass
