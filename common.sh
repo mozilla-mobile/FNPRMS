@@ -11,6 +11,118 @@ function sweep_files_older_than {
   done
 }
 
+function validate_use_case {
+  use_case=$1
+
+  case ${use_case} in
+    ha|al|hanoob)
+      return 0
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+
+  return 0
+}
+
+function validate_product {
+  product=$1
+
+  case ${product} in
+    fennec|fenix-nightly|fenix-performance)
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+
+  return 0
+}
+
+function package_name_for_product {
+  product=$1
+  shift
+
+  validate_product ${product}
+  if [ $? -ne 0 ]; then
+    return 1
+  fi
+    case ${product} in
+    fenix-nightly)
+      echo "org.mozilla.fenix.nightly"
+      ;;
+    fenix-performance)
+      echo "org.mozilla.fenix.performancetest"
+      ;;
+    fennec)
+      echo "org.mozilla.firefox"
+      ;;
+  esac
+  return 0
+}
+
+function intent_for_configuration {
+  use_case=$1
+  shift
+  product=$1
+  shift
+
+  validate_use_case ${use_case}
+  if [ $? -ne 0 ]; then
+    return 1
+  fi
+
+  validate_product ${product}
+  if [ $? -ne 0 ]; then
+    return 1
+  fi
+
+  case ${use_case} in
+    al)
+      case ${product} in
+        fenix-nightly)
+          echo '-d "about:blank" -a android.intent.action.VIEW org.mozilla.fenix.nightly/org.mozilla.fenix.IntentReceiverActivity'
+          ;;
+        fenix-performance)
+          echo '-d "about:blank" -a android.intent.action.VIEW org.mozilla.fenix.performancetest/org.mozilla.fenix.IntentReceiverActivity'
+          ;;
+        fennec)
+          echo '-t "text/html" -d "about:blank" -a android.intent.action.VIEW org.mozilla.firefox/org.mozilla.gecko.LauncherActivity'
+          ;;
+      esac
+      ;;
+    ha)
+      case ${product} in
+        fenix-nightly)
+          echo "-a android.intent.action.VIEW org.mozilla.fenix.nightly/org.mozilla.fenix.HomeActivity"
+          ;;
+        fenix-performance)
+          echo "-a android.intent.action.VIEW org.mozilla.fenix.performancetest/org.mozilla.fenix.HomeActivity"
+          ;;
+        fennec)
+          echo "-a android.intent.action.VIEW org.mozilla.firefox/org.mozilla.gecko.BrowserApp"
+          ;;
+      esac
+      ;;
+    hanoob)
+      case ${product} in
+        fenix-nightly)
+          return 1
+          ;;
+        fenix-performance)
+          return 1
+          ;;
+        fennec)
+          return 1
+          ;;
+      esac
+      ;;
+  esac
+
+  return 0
+}
+
 function download_apk { 
   url_template=$1
   shift
