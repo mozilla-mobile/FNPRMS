@@ -10,15 +10,21 @@ cd ${iamhere}
 log_dir=/home/hawkinsw/manual/
 
 if [ $# -ne 1 ]; then
-  echo "$0 <variant>";
+  echo "$0 <product>";
   exit
 fi
 
-variant=$1
+product=$1
 shift
 
+validate_product ${product}
+if [ $? -ne 0 ]; then
+  echo "Invalid product name."
+  exit
+fi
+
 {
-  ./manual_times.py --variant ${variant} --input_dir ${log_dir} --output_dir ${log_dir}
+  ./times.py --product ${product} --input_dir ${log_dir} --output_dir ${log_dir}
 }
 
 cd ${iwashere}
