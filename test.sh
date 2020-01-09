@@ -7,9 +7,9 @@ cd ${iamhere}
 
 . common.sh
 
-homeactivity_start_command='am start-activity org.mozilla.fenix.performancetest/org.mozilla.fenix.HomeActivity'
-applink_start_command='am start-activity -t "text/html" -d "about:blank" -a android.intent.action.VIEW org.mozilla.fenix.performancetest/org.mozilla.fenix.IntentReceiverActivity'
-apk_url_template="https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/project.mobile.fenix.v2.performance-test.DATE.latest/artifacts/public/build/armeabi-v7a/geckoNightly/target.apk"
+homeactivity_start_command='am start-activity org.mozilla.fenix.nightly/org.mozilla.fenix.HomeActivity'
+applink_start_command='am start-activity -t "text/html" -d "about:blank" -a android.intent.action.VIEW org.mozilla.fenix.nightly/org.mozilla.fenix.IntentReceiverActivity'
+apk_url_template="https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/project.mobile.fenix.v2.nightly.DATE.latest/artifacts/public/build/armeabi-v7a/geckoNightly/target.apk"
 log_dir=/home/hawkinsw/run_logs/
 test_date=`date +"%Y.%m.%d"`
 log_base=${test_date}
@@ -42,9 +42,9 @@ maybe_create_file "${log_dir}/${log_base}-hanoob.log"
     echo "Error: Failed to download an APK."
   else
     echo "Running tests"
-    run_test ${downloaded_apk_file} "${log_dir}/${log_base}-ha.log" "org.mozilla.fenix.performancetest" "${homeactivity_start_command}" 100
-    run_test ${downloaded_apk_file} "${log_dir}/${log_base}-al.log" "org.mozilla.fenix.performancetest" "${applink_start_command}" 100
-    run_test ${downloaded_apk_file} "${log_dir}/${log_base}-hanoob.log" "org.mozilla.fenix.performancetest" "${homeactivity_start_command}" 100 true
+    run_test ${downloaded_apk_file} "${log_dir}/${log_base}-ha.log" "org.mozilla.fenix.nightly" "${homeactivity_start_command}" 10
+    run_test ${downloaded_apk_file} "${log_dir}/${log_base}-al.log" "org.mozilla.fenix.nightly" "${applink_start_command}" 10
+    run_test ${downloaded_apk_file} "${log_dir}/${log_base}-hanoob.log" "org.mozilla.fenix.nightly" "${homeactivity_start_command}" 10 true
   fi
 } >> ${run_log} 2>&1
 
