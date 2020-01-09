@@ -16,7 +16,6 @@ function validate_use_case {
 
   case ${use_case} in
     ha|al|hanoob)
-      return 0
       ;;
     *)
       return 1
