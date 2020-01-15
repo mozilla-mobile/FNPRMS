@@ -2,7 +2,7 @@
 import glob
 from enum import Enum
 import re
-from typing import Pattern, List, MutableMapping
+from typing import Any, Callable, List, Mapping, MutableMapping, Pattern
 import os
 import argparse
 
@@ -106,13 +106,31 @@ class Runtime:
 
     return result
 
-def format_calculations(calculations) -> str:
+def csv_format_calculations(calculations: Mapping[str, str]) -> str:
   result: str = ""
   for date in sorted(calculations.keys()):
     result += date + ", " + calculations[date] + "\n"
   return result
 
-def calculate(dirname: str, tipe: Type, product: str, result_file: str):
+def json_format_calculations(calculations: Mapping[str, str]) -> str:
+  result: str = ""
+  firstresult: bool = True
+  result = "["
+  for key in sorted(calculations.keys()):
+    if firstresult:
+      firstresult = False
+    else:
+      result += ","
+    
+    value: str = calculations[key] if calculations[key] != "NA" else "0"
+    date: str = key.replace(".", "-")
+
+    result += "\n{ \"date\": \"" + date + "\", \"value\": " + value + "}"
+
+  result += "\n]"
+  return result
+
+def calculate(dirname: str, tipe: Type, product: str, formatter: Callable[[Mapping[str, str]], str], result_file: str):
   stats_filename: str = ""
   calculations: MutableMapping[str, str] = {}
   for stats_filename in glob.glob(dirname + "/*-" + str(tipe) + ".log"):
@@ -126,7 +144,7 @@ def calculate(dirname: str, tipe: Type, product: str, result_file: str):
 
   try:
     with open(result_file, "w+") as result_fd:
-      result_fd.write(format_calculations(calculations))
+      result_fd.write(formatter(calculations))
   except IOError as ioerror:
     pass
 
@@ -148,7 +166,13 @@ if __name__=="__main__":
   if (not validate_product(product)):
     print("Cannot run with invalid product: " + product + ".")
   else:
-    calculate(input_dir, Type.HA, product,  output_dir + "/" + "ha-results.csv")
-    calculate(input_dir, Type.AL, product, output_dir + "/" + "al-results.csv")
-    calculate(input_dir, Type.HANOOB, product, output_dir + "/" + "hanoob-results.csv")
+    # Print results in csv format.
+    calculate(input_dir, Type.HA, product,  csv_format_calculations, output_dir + "/" + "ha-results.csv")
+    calculate(input_dir, Type.AL, product, csv_format_calculations, output_dir + "/" + "al-results.csv")
+    calculate(input_dir, Type.HANOOB, product, csv_format_calculations, output_dir + "/" + "hanoob-results.csv")
+
+    # Print results in json format.
+    calculate(input_dir, Type.HA, product,  json_format_calculations, output_dir + "/" + "ha-results.json")
+    calculate(input_dir, Type.AL, product, json_format_calculations, output_dir + "/" + "al-results.json")
+    calculate(input_dir, Type.HANOOB, product, json_format_calculations, output_dir + "/" + "hanoob-results.json")
   pass

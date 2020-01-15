@@ -22,6 +22,7 @@ maybe_create_file ${run_log}
 cwd=`pwd`
 cd ${log_dir}
 git add *.csv
+git add *.json
 git add *.log
 git commit -m "${log_base} update stats"
 git push fenix-mobile master -q
