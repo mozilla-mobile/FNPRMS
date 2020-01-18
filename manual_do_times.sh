@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#
+# Generate csv- and json-formatted files containing test results
+# for all the raw test data in _log_dir_ for _product_.
 
 iamhere=${BASH_SOURCE%/*}
 iwashere=`pwd`
@@ -10,7 +16,7 @@ cd ${iamhere}
 log_dir=/home/hawkinsw/manual/
 
 if [ $# -ne 1 ]; then
-  echo "$0 <product>";
+  echo "$0 <fennec|fenix-nightly|fenix-performance>";
   exit
 fi
 
