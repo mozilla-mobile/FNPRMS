@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#
+# Manually run _product_ under the _use_case_ use case where the application
+# is stored in _apk_.
 
 iamhere=${BASH_SOURCE%/*}
 iwashere=`pwd`
@@ -14,7 +20,7 @@ shift
 product=$1
 
 if [ \( "X${apk_file}" == "X" \) -o \( "X${use_case}" == "X" \) -o \( "X${product}" == "X" \) ]; then
-  echo "usage: <apk file to test> <use case> <product>"
+  echo "usage: <apk file to test> <ha|al|hanoob> <fennec|fenix-nightly|fenix-performance>"
   exit 1
 fi
 

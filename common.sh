@@ -1,5 +1,24 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#
+# Common functions used throughout FNPRMS
+
+# Constant for use in other scripts to be able to easily locate
+# adb on the system.
 ADB="/home/hawkinsw/Android/Sdk/platform-tools/adb"
 
+# sweep_files_older_than
+#
+# Params:
+# 1: days
+# 2: path
+#
+# Files in the git repository at _path_ older than _days_
+# will be staged for removal.
+#
+# Return Value:
+# None
 function sweep_files_older_than {
   days=$1
   shift
@@ -11,6 +30,15 @@ function sweep_files_older_than {
   done
 }
 
+# validate_use_case
+#
+# Params:
+# 1: use_case
+#
+# Determine if _use_case_ is valid.
+#
+# Return Value:
+# 0 if _use_case_ is valid; 1 otherwise
 function validate_use_case {
   use_case=$1
 
@@ -25,6 +53,15 @@ function validate_use_case {
   return 0
 }
 
+# validate_product
+#
+# Params:
+# 1: product
+#
+# Determine whether _product_ is valid
+#
+# Return Value:
+# 0 if _product_ is a valid product; 1 otherwise.
 function validate_product {
   product=$1
 
@@ -39,6 +76,17 @@ function validate_product {
   return 0
 }
 
+# package_name_for_product
+#
+# Params:
+# 1: product
+#
+# Get the package name corresponding to the product
+#
+# Output:
+# A string representing the package name of _product_
+# Return Value:
+# 1 if _product_ is not a valid product; 0 otherwise.
 function package_name_for_product {
   product=$1
   shift
@@ -61,6 +109,20 @@ function package_name_for_product {
   return 0
 }
 
+# intent_for_configuration
+#
+# Params:
+# 1: use_case
+# 2: product
+#
+# For the _use_case_ of _product_, get an intent that can be
+# used to launch the app in that way.
+#
+# Output:
+# The intent, usable with adb start, that will launch _product_
+# for _use_case_.
+# Return Value:
+# 1 if either _product_ or _use_case_ are invalid; 0 otherwise.
 function intent_for_configuration {
   use_case=$1
   shift
@@ -122,6 +184,21 @@ function intent_for_configuration {
   return 0
 }
 
+# download_apk 
+#
+# Params:
+# 1: url_template
+# 2: date_to_fetch
+# 3: output_file_path
+#
+# Download the apk from the url built by replacing all instances of DATE
+# in _url_template_ with the _date_to_fetch and save it to _output_file_path.
+#
+# Output:
+# Loggable diagnostic information
+#
+# Return Value:
+# 0 if the apk was downloaded successfully; curl's return value, otherwise.
 function download_apk { 
   url_template=$1
   shift
@@ -144,17 +221,59 @@ function download_apk {
   return ${result}
 }
 
+# maybe_create_dir
+#
+# Params:
+# 1: filedir
+#
+# Create _filedir_ directory if it does not already exist. This function will
+# create any parent directories necessary to make it possible to create
+# _filedir_.
+#
+# Return value:
+# The return value of mkdir
 function maybe_create_dir {
   filedir=$1
   mkdir -p ${filedir} >/dev/null 2>&1
 }
 
+# maybe_create_file
+#
+# Params:
+# 1: filepath
+#
+# Create _filepath_ file if it does not already exist. This function will
+# create any directories necessary to make it possible to create _filepath_.
+#
+# Return value:
+# The return value of touch
 function maybe_create_file {
   filepath=$1
   maybe_create_dir $(dirname ${filepath})
   touch ${filepath}
 }
 
+# run_test
+#
+# Params:
+# 1: apk
+# 2: log_file
+# 3: package_name
+# 4: start_command
+# 5: tests
+# 6: finishonboarding
+#
+# Run install _apk_ on the system and execute it _tests_ times using the
+# _start_command_. If _finishonboarding_ is true, the application will be run
+# without onboarding. All results are logged in _log_file_. For more information
+# about the methodology employed by this test, see
+# https://docs.google.com/document/d/1HhXjAnu5tRv9Uo_bqnNa6S8LbF6WNAlSYbFrIQiGz_g/edit.
+#
+# Output:
+# Loggable diagnostic information
+#
+# Return Value:
+# None
 function run_test {
   apk=$1
   shift
@@ -176,7 +295,7 @@ function run_test {
   rm -f ${log_file} > /dev/null 2>&1
   maybe_create_file ${log_file}
 
-  # do the apk installation.
+  # Do the apk installation.
   $ADB uninstall ${package_name} > /dev/null 2>&1
   $ADB install -t ${apk}
 
@@ -187,7 +306,7 @@ function run_test {
 
   # Now, do a single start to get all that stuff out of the way.
   $ADB shell "${warmup_start_command}"
-  # sleep here in case it takes a while for the app to start.
+  # Sleep here in case it takes a while for the app to start.
   # We don't want to stop it before it starts.
   sleep 5
   $ADB shell "am force-stop ${package_name}"
@@ -207,7 +326,7 @@ function run_test {
 
     $ADB shell "${start_command}"
 
-    # sleep here in case it takes a while for the app to start.
+    # Sleep here in case it takes a while for the app to start.
     # We don't want to stop it before it starts.
     sleep 5
     $ADB shell "input keyevent HOME"
