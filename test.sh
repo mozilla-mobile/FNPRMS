@@ -58,9 +58,9 @@ maybe_create_file "${log_dir}/${log_base}-hanoob.log"
   else
     # Run each of the three use cases 10 times.
     echo "Running tests"
-    run_test ${downloaded_apk_file} "${log_dir}/${log_base}-ha.log" "org.mozilla.fenix.nightly" "${homeactivity_start_command}" 10
-    run_test ${downloaded_apk_file} "${log_dir}/${log_base}-al.log" "org.mozilla.fenix.nightly" "${applink_start_command}" 10
-    run_test ${downloaded_apk_file} "${log_dir}/${log_base}-hanoob.log" "org.mozilla.fenix.nightly" "${homeactivity_start_command}" 10 true
+    run_test ${downloaded_apk_file} "${log_dir}/${log_base}-ha.log" "org.mozilla.fenix.nightly" "${homeactivity_start_command}" 100
+    run_test ${downloaded_apk_file} "${log_dir}/${log_base}-al.log" "org.mozilla.fenix.nightly" "${applink_start_command}" 25
+    run_test ${downloaded_apk_file} "${log_dir}/${log_base}-hanoob.log" "org.mozilla.fenix.nightly" "${homeactivity_start_command}" 100 true
   fi
 } >> ${run_log} 2>&1
 
