@@ -8,13 +8,13 @@ import argparse
 
 DisplayedLinesRe: MutableMapping[str, Pattern] = {}
 DisplayedLinesStripToTime: MutableMapping[str, Pattern] = {}
-DisplayedLinesRe["fenix-nightly"] = re.compile(".*ActivityManager: Displayed org.mozilla.fenix.nightly/org.mozilla.fenix.HomeActivity.*$")
-DisplayedLinesRe["fenix-performance"] = re.compile(".*ActivityManager: Displayed org.mozilla.fenix.performancetest/org.mozilla.fenix.HomeActivity.*$")
-DisplayedLinesRe["fennec"] = re.compile(".*ActivityManager: Displayed org.mozilla.firefox/org.mozilla.gecko.BrowserApp.*$")
+DisplayedLinesRe["fenix-nightly"] = re.compile(".*ActivityManager: Fully drawn org.mozilla.fenix.nightly/org.mozilla.fenix.HomeActivity.*$")
+DisplayedLinesRe["fenix-performance"] = re.compile(".*ActivityManager: Fully drawn org.mozilla.fenix.performancetest/org.mozilla.fenix.HomeActivity.*$")
+DisplayedLinesRe["fennec"] = re.compile(".*ActivityManager: Fully drawn org.mozilla.firefox/org.mozilla.gecko.BrowserApp.*$")
 
-DisplayedLinesStripToTime["fenix-nightly"] = re.compile(".*ActivityManager: Displayed org.mozilla.fenix.nightly/org.mozilla.fenix.HomeActivity: \+")
-DisplayedLinesStripToTime["fenix-performance"] = re.compile(".*ActivityManager: Displayed org.mozilla.fenix.performancetest/org.mozilla.fenix.HomeActivity: \+")
-DisplayedLinesStripToTime["fennec"] = re.compile(".*ActivityManager: Displayed org.mozilla.firefox/org.mozilla.gecko.BrowserApp: \+")
+DisplayedLinesStripToTime["fenix-nightly"] = re.compile(".*ActivityManager: Fully drawn org.mozilla.fenix.nightly/org.mozilla.fenix.HomeActivity: \+")
+DisplayedLinesStripToTime["fenix-performance"] = re.compile(".*ActivityManager: Fully drawn org.mozilla.fenix.performancetest/org.mozilla.fenix.HomeActivity: \+")
+DisplayedLinesStripToTime["fennec"] = re.compile(".*ActivityManager: Fully drawn org.mozilla.firefox/org.mozilla.gecko.BrowserApp: \+")
 
 DisplayedLinesStripFromTime = re.compile(" .*$")
 DisplayedLinesStripMs = re.compile("([0-9]+)ms")
