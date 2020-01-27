@@ -32,7 +32,7 @@ function run {
 homeactivity_start_command='am start-activity org.mozilla.fenix.performancetest/org.mozilla.fenix.HomeActivity'
 applink_start_command='am start-activity -t "text/html" -d "about:blank" -a android.intent.action.VIEW org.mozilla.fenix.performancetest/org.mozilla.fenix.IntentReceiverActivity'
 apk_url_template="https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/project.mobile.fenix.v2.performance-test.DATE.latest/artifacts/public/build/armeabi-v7a/geckoNightly/target.apk"
-log_dir=/home/hawkinsw/run_logs/
+log_dir=/opt/fnprms/run_logs/
 test_date=`date +"%Y.%m.%d"`
 log_base=${test_date}
 downloaded_apk_path=`printf "%s/%s/" \`pwd\` \`date +"%Y/%m/%-d"\``;

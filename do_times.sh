@@ -14,7 +14,7 @@ cd ${iamhere}
 
 . common.sh
 
-log_dir=/home/hawkinsw/run_logs/
+log_dir=/opt/fnprms/run_logs/
 test_date=`date +"%Y.%m.%d"`
 log_base=${test_date}
 run_log="${log_dir}/${log_base}.log"
