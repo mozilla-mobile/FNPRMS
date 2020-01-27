@@ -12,7 +12,7 @@ cd ${iamhere}
 
 . common.sh
 
-log_dir=/home/hawkinsw/run_logs/
+log_dir=/opt/fnprms/run_logs/
 
 cwd=`pwd`
 cd ${log_dir}

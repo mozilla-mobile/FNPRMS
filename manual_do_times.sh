@@ -13,7 +13,7 @@ cd ${iamhere}
 
 . common.sh
 
-log_dir=/home/hawkinsw/manual/
+log_dir=/opt/fnprms/manual/
 
 if [ $# -ne 1 ]; then
   echo "$0 <fennec|fenix-nightly|fenix-performance>";

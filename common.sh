@@ -6,7 +6,7 @@
 
 # Constant for use in other scripts to be able to easily locate
 # adb on the system.
-ADB="/home/hawkinsw/Android/Sdk/platform-tools/adb"
+ADB="/opt/fnprms/Android/Sdk/platform-tools/adb"
 
 # sweep_files_older_than
 #

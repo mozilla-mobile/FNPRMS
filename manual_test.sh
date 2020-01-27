@@ -36,7 +36,7 @@ if [ $? -ne 0 ]; then
   exit
 fi
 
-log_dir=/home/hawkinsw/manual/
+log_dir=/opt/fnprms/manual/
 test_date=`date +"%Y.%m.%d"`
 log_base=${test_date}
 run_log="${log_dir}/${log_base}.log"
