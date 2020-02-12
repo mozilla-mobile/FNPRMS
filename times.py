@@ -19,6 +19,7 @@ DisplayedLinesStripToTime["fennec"] = re.compile(".*ActivityManager: Fully drawn
 DisplayedLinesStripFromTime = re.compile(" .*$")
 DisplayedLinesStripMs = re.compile("([0-9]+)ms")
 DisplayedLinesSubSeconds = re.compile("s")
+DisplayedLineSubSecondsAlternative = re.compile("s.")
 RunlogPathStripTagExtension = re.compile("-.*.log$")
 
 
@@ -98,9 +99,12 @@ class Runtime:
     str_result = re.sub(DisplayedLinesStripToTime[product], "", displayed_line)
     str_result = re.sub(DisplayedLinesStripFromTime, "", str_result)
     str_result = re.sub(DisplayedLinesStripMs, ".\\1", str_result)
-    str_result = re.sub(DisplayedLinesSubSeconds, "", str_result)
+    if len(str_result.strip()) is 5:
+      str_result =  re.sub(DisplayedLineSubSecondsAlternative, ".0", str_result)
+    else:
+      str_result = re.sub(DisplayedLinesSubSeconds, "", str_result)
     try:
-      result = float(str_result) 
+      result = float(str_result)
     except ValueError as ve:
       raise ValueError(ve) 
 
