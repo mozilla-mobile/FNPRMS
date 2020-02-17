@@ -25,3 +25,9 @@ For tests run manaully:
 - `log_dir`: Change to the location to store test output logs.
 1. `manual_dotimes.sh`:
 - `log_dir`: Change to the location where test output logs can be found. This value should match `log_dir` specified in `manual_test.sh`.
+
+## LICENSE
+
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/
