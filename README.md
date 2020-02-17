@@ -3,10 +3,16 @@ Scripts to automatically test the startup performance of Fenix's
 nightly variant of Fenix *or* manually test the startup performance of
 Fennec or Fenix.
 
-## Operation:
-To use the system automatically, see `test.sh`, `do_times.sh` and `plot.sh`. To
-operate the system manually, see `manual_test.sh`, `manual_do_times.sh` and
-`plot.sh`.
+## Usage
+To use the system automatically, run:
+* `test.sh` to run the test & generate logs
+* `do_times.sh` to take the logs and extract timing information from them
+* `plot.sh` to plot the timing information
+
+To use the system manually, run:
+* `manual_test.sh` to run the test & generate logs
+* `manual_do_times.sh` to take the logs and extract timing information from them
+* `plot.sh` to plot the timing information
 
 ## Installation
 
