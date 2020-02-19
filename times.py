@@ -15,11 +15,11 @@ DisplayedLinesRe["fennec"] = re.compile(".*ActivityManager: Fully drawn org.mozi
 DisplayedLinesStripToTime["fenix-nightly"] = re.compile(".*ActivityManager: Fully drawn org.mozilla.fenix.nightly/org.mozilla.fenix.HomeActivity: \+")
 DisplayedLinesStripToTime["fenix-performance"] = re.compile(".*ActivityManager: Fully drawn org.mozilla.fenix.performancetest/org.mozilla.fenix.HomeActivity: \+")
 DisplayedLinesStripToTime["fennec"] = re.compile(".*ActivityManager: Fully drawn org.mozilla.firefox/org.mozilla.gecko.BrowserApp: \+")
-
-DisplayedLinesStripFromTime = re.compile(" .*$")
-DisplayedLinesStripMs = re.compile("([0-9]+)ms")
-DisplayedLinesSubSeconds = re.compile("s")
-DisplayedLineSubSecondsAlternative = re.compile("s.")
+DisplayedLinesTime = re.compile(r"""
+  (?:(\d+)s)?   # Find seconds if present and store in the first group
+  (?:(\d+)ms)?  # Find milliseconds if present and store in the second group
+  $
+""", re.VERBOSE)
 RunlogPathStripTagExtension = re.compile("-.*.log$")
 
 
@@ -94,21 +94,10 @@ class Runtime:
 
   @staticmethod
   def convert_displayed_line_to_time(displayed_line: str, product: str) -> float:
-    result: float = 0
     str_result: str = ""
     str_result = re.sub(DisplayedLinesStripToTime[product], "", displayed_line)
-    str_result = re.sub(DisplayedLinesStripFromTime, "", str_result)
-    str_result = re.sub(DisplayedLinesStripMs, ".\\1", str_result)
-    if len(str_result.strip()) is 5:
-      str_result =  re.sub(DisplayedLineSubSecondsAlternative, ".0", str_result)
-    else:
-      str_result = re.sub(DisplayedLinesSubSeconds, "", str_result)
-    try:
-      result = float(str_result)
-    except ValueError as ve:
-      raise ValueError(ve) 
-
-    return result
+    m = re.search(DisplayedLinesTime, str_result)
+    return float(m.group(1) or 0) + float(m.group(2) or 0) / 1000
 
 def csv_format_calculations(calculations: Mapping[str, str]) -> str:
   result: str = ""
