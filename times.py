@@ -5,7 +5,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 # Parses log files, calculates average time for the included test runs, and
-saves the result to disk.
+# saves the result to disk.
 
 import glob
 from enum import Enum
