@@ -10,24 +10,24 @@
 import glob
 from enum import Enum
 import re
-from typing import Any, Callable, List, Mapping, MutableMapping, Pattern
+from typing import Callable, List, Mapping, MutableMapping, Pattern
 import os
 import argparse
 
 DisplayedLinesRe: MutableMapping[str, Pattern] = {}
 DisplayedLinesStripToTime: MutableMapping[str, Pattern] = {}
-DisplayedLinesRe["fenix-nightly"] = re.compile(".*ActivityManager: Fully drawn org.mozilla.fenix.nightly/org.mozilla.fenix.HomeActivity.*$")
-DisplayedLinesRe["fenix-performance"] = re.compile(".*ActivityManager: Fully drawn org.mozilla.fenix.performancetest/org.mozilla.fenix.HomeActivity.*$")
-DisplayedLinesRe["fennec"] = re.compile(".*ActivityManager: Fully drawn org.mozilla.firefox/org.mozilla.gecko.BrowserApp.*$")
+DisplayedLinesRe["fenix-nightly"] = re.compile(r".*ActivityManager: Fully drawn org.mozilla.fenix.nightly/org.mozilla.fenix.HomeActivity.*$")
+DisplayedLinesRe["fenix-performance"] = re.compile(r".*ActivityManager: Fully drawn org.mozilla.fenix.performancetest/org.mozilla.fenix.HomeActivity.*$")
+DisplayedLinesRe["fennec"] = re.compile(r".*ActivityManager: Fully drawn org.mozilla.firefox/org.mozilla.gecko.BrowserApp.*$")
 
-DisplayedLinesStripToTime["fenix-nightly"] = re.compile(".*ActivityManager: Fully drawn org.mozilla.fenix.nightly/org.mozilla.fenix.HomeActivity: \+")
-DisplayedLinesStripToTime["fenix-performance"] = re.compile(".*ActivityManager: Fully drawn org.mozilla.fenix.performancetest/org.mozilla.fenix.HomeActivity: \+")
-DisplayedLinesStripToTime["fennec"] = re.compile(".*ActivityManager: Fully drawn org.mozilla.firefox/org.mozilla.gecko.BrowserApp: \+")
+DisplayedLinesStripToTime["fenix-nightly"] = re.compile(r".*ActivityManager: Fully drawn org.mozilla.fenix.nightly/org.mozilla.fenix.HomeActivity: \+")
+DisplayedLinesStripToTime["fenix-performance"] = re.compile(r".*ActivityManager: Fully drawn org.mozilla.fenix.performancetest/org.mozilla.fenix.HomeActivity: \+")
+DisplayedLinesStripToTime["fennec"] = re.compile(r".*ActivityManager: Fully drawn org.mozilla.firefox/org.mozilla.gecko.BrowserApp: \+")
 DisplayedLinesTime = re.compile(r"""
   (?:(\d+)s)?   # Find seconds if present and store in the first group
   (?:(\d+)ms)?  # Find milliseconds if present and store in the second group
 """, re.VERBOSE)
-RunlogPathStripTagExtension = re.compile("-.*.log$")
+RunlogPathStripTagExtension = re.compile(r"-.*.log$")
 
 
 def validate_product(product: str) -> bool:
@@ -36,6 +36,7 @@ def validate_product(product: str) -> bool:
      product == "fenix-performance":
     return True
   return False
+
 
 class Type(Enum):
   HA = 1
@@ -52,6 +53,7 @@ class Type(Enum):
     else:
       return ""
 
+
 class Runtime:
   def __init__(self: 'Runtime', product: str, runlog_path: str):
     print("Using " + product + " as a variant!")
@@ -64,24 +66,18 @@ class Runtime:
     return result
 
   def time(self: 'Runtime') -> float:
-    result: float = 0.0
     with open(self.runlog_path) as stats_fd:
       displayed = Runtime.find_displayed_lines(self.product, stats_fd)
 
     if len(displayed) == 0:
       raise ValueError("No 'Displayed' lines found in " + self.runlog_path + ".")
 
-    try:
-      result = Runtime.calculate_average(displayed, self.product)
-    except ValueError as ve:
-      raise ValueError(ve)
-
-    return result
+    return Runtime.calculate_average(displayed, self.product)
 
   @staticmethod
   def calculate_average(displayed_lines: List[str], product: str) -> float:
-    count: int = 0;
-    total: float = 0.0;
+    count: int = 0
+    total: float = 0.0
     for l in displayed_lines:
       try:
         total += Runtime.convert_displayed_line_to_time(l, product)
@@ -89,7 +85,7 @@ class Runtime:
         raise ValueError(ve)
       count += 1
 
-    return total/(count*1.0) 
+    return total / (count * 1.0)
 
   @staticmethod
   def find_displayed_lines(product, fd) -> List[str]:
@@ -108,11 +104,13 @@ class Runtime:
       raise ValueError('unable to convert line to time')
     return float(m.group(1) or 0) + float(m.group(2) or 0) / 1000
 
+
 def csv_format_calculations(calculations: Mapping[str, str]) -> str:
   result: str = ""
   for date in sorted(calculations.keys()):
     result += date + ", " + calculations[date] + "\n"
   return result
+
 
 def json_format_calculations(calculations: Mapping[str, str]) -> str:
   result: str = ""
@@ -123,7 +121,7 @@ def json_format_calculations(calculations: Mapping[str, str]) -> str:
       firstresult = False
     else:
       result += ","
-    
+
     value: str = calculations[key] if calculations[key] != "NA" else "0"
     date: str = key.replace(".", "-")
 
@@ -131,6 +129,7 @@ def json_format_calculations(calculations: Mapping[str, str]) -> str:
 
   result += "\n]"
   return result
+
 
 def calculate(dirname: str, tipe: Type, product: str, formatter: Callable[[Mapping[str, str]], str], result_file: str):
   stats_filename: str = ""
@@ -140,17 +139,18 @@ def calculate(dirname: str, tipe: Type, product: str, formatter: Callable[[Mappi
     result: str = "NA"
     try:
       result = str(runtime.time())
-    except ValueError as ve:
+    except ValueError:
       pass
     calculations[runtime.date()] = result
 
   try:
     with open(result_file, "w+") as result_fd:
       result_fd.write(formatter(calculations))
-  except IOError as ioerror:
+  except IOError:
     pass
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
   input_dir: str = ""
   output_dir: str = ""
   product: str = ""
@@ -169,12 +169,12 @@ if __name__=="__main__":
     print("Cannot run with invalid product: " + product + ".")
   else:
     # Print results in csv format.
-    calculate(input_dir, Type.HA, product,  csv_format_calculations, output_dir + "/" + "ha-results.csv")
+    calculate(input_dir, Type.HA, product, csv_format_calculations, output_dir + "/" + "ha-results.csv")
     calculate(input_dir, Type.AL, product, csv_format_calculations, output_dir + "/" + "al-results.csv")
     calculate(input_dir, Type.HANOOB, product, csv_format_calculations, output_dir + "/" + "hanoob-results.csv")
 
     # Print results in json format.
-    calculate(input_dir, Type.HA, product,  json_format_calculations, output_dir + "/" + "ha-results.json")
+    calculate(input_dir, Type.HA, product, json_format_calculations, output_dir + "/" + "ha-results.json")
     calculate(input_dir, Type.AL, product, json_format_calculations, output_dir + "/" + "al-results.json")
     calculate(input_dir, Type.HANOOB, product, json_format_calculations, output_dir + "/" + "hanoob-results.json")
   pass
