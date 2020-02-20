@@ -26,7 +26,6 @@ DisplayedLinesStripToTime["fennec"] = re.compile(".*ActivityManager: Fully drawn
 DisplayedLinesTime = re.compile(r"""
   (?:(\d+)s)?   # Find seconds if present and store in the first group
   (?:(\d+)ms)?  # Find milliseconds if present and store in the second group
-  $
 """, re.VERBOSE)
 RunlogPathStripTagExtension = re.compile("-.*.log$")
 
@@ -105,6 +104,8 @@ class Runtime:
     str_result: str = ""
     str_result = re.sub(DisplayedLinesStripToTime[product], "", displayed_line)
     m = re.search(DisplayedLinesTime, str_result)
+    if m.group(1) is None and m.group(2) is None:
+      raise ValueError('unable to convert line to time')
     return float(m.group(1) or 0) + float(m.group(2) or 0) / 1000
 
 def csv_format_calculations(calculations: Mapping[str, str]) -> str:
