@@ -14,15 +14,19 @@ from typing import Callable, List, Mapping, MutableMapping, Pattern
 import os
 import argparse
 
+# NB: log lines may contain either ActivityTaskManager or ActivityManager
 DisplayedLinesRe: MutableMapping[str, Pattern] = {}
 DisplayedLinesStripToTime: MutableMapping[str, Pattern] = {}
-DisplayedLinesRe["fenix-nightly"] = re.compile(r".*ActivityManager: Fully drawn org.mozilla.fenix.nightly/org.mozilla.fenix.HomeActivity.*$")
-DisplayedLinesRe["fenix-performance"] = re.compile(r".*ActivityManager: Fully drawn org.mozilla.fenix.performancetest/org.mozilla.fenix.HomeActivity.*$")
-DisplayedLinesRe["fennec"] = re.compile(r".*ActivityManager: Fully drawn org.mozilla.firefox/org.mozilla.gecko.BrowserApp.*$")
+DisplayedLinesRe["fenix-nightly"] = re.compile(r".*Manager: Fully drawn org.mozilla.fenix.nightly/org.mozilla.fenix.HomeActivity.*$")
+DisplayedLinesRe["fenix-performance"] = re.compile(r".*Manager: Fully drawn org.mozilla.fenix.performancetest/org.mozilla.fenix.HomeActivity.*$")
+DisplayedLinesRe["fennec"] = re.compile(r".*Manager: Fully drawn org.mozilla.firefox/org.mozilla.gecko.BrowserApp.*$")
+DisplayedLinesRe["fennec-nightly"] = re.compile(r".*Manager: Fully drawn org.mozilla.fennec_aurora/org.mozilla.fenix.HomeActivity.*$")
 
-DisplayedLinesStripToTime["fenix-nightly"] = re.compile(r".*ActivityManager: Fully drawn org.mozilla.fenix.nightly/org.mozilla.fenix.HomeActivity: \+")
-DisplayedLinesStripToTime["fenix-performance"] = re.compile(r".*ActivityManager: Fully drawn org.mozilla.fenix.performancetest/org.mozilla.fenix.HomeActivity: \+")
-DisplayedLinesStripToTime["fennec"] = re.compile(r".*ActivityManager: Fully drawn org.mozilla.firefox/org.mozilla.gecko.BrowserApp: \+")
+DisplayedLinesStripToTime["fenix-nightly"] = re.compile(r".*Manager: Fully drawn org.mozilla.fenix.nightly/org.mozilla.fenix.HomeActivity: \+")
+DisplayedLinesStripToTime["fenix-performance"] = re.compile(r".*Manager: Fully drawn org.mozilla.fenix.performancetest/org.mozilla.fenix.HomeActivity: \+")
+DisplayedLinesStripToTime["fennec"] = re.compile(r".*Manager: Fully drawn org.mozilla.firefox/org.mozilla.gecko.BrowserApp: \+")
+DisplayedLinesStripToTime["fennec-nightly"] = re.compile(r".*Manager: Fully drawn org.mozilla.fennec_aurora/org.mozilla.fenix.HomeActivity: \+")
+
 DisplayedLinesTime = re.compile(r"""
   (?:(\d+)s)?   # Find seconds if present and store in the first group
   (?:(\d+)ms)?  # Find milliseconds if present and store in the second group
@@ -32,6 +36,7 @@ RunlogPathStripTagExtension = re.compile(r"-.*.log$")
 
 def validate_product(product: str) -> bool:
   if product == "fennec" or \
+     product == "fennec-nightly" or \
      product == "fenix-nightly" or \
      product == "fenix-performance":
     return True

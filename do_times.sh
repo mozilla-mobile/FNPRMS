@@ -28,7 +28,7 @@ maybe_create_file ${run_log}
 
 
 {
-  ./times.py --product fenix-nightly --input_dir ${log_dir} --output_dir ${log_dir}
+  ./times.py --product ${fpm_product} --input_dir ${log_dir} --output_dir ${log_dir}
 } >> ${run_log} 2>&1
 
 cwd=`pwd`
