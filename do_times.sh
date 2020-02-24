@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
@@ -12,10 +13,14 @@ iwashere=`pwd`
 iamhere=${iamhere/./${iwashere}}
 cd ${iamhere}
 
+DEVICEID=$1
+PRODUCTID=$2
+
+. common_devices.sh $DEVICEID
+. common_products.sh $PRODUCTID
 . common.sh
 
-log_dir=/opt/fnprms/run_logs/
-test_date=`date +"%Y.%m.%d"`
+log_dir=$fpm_log_dir
 log_base=${test_date}
 run_log="${log_dir}/${log_base}.log"
 
@@ -28,11 +33,11 @@ maybe_create_file ${run_log}
 
 cwd=`pwd`
 cd ${log_dir}
-git add *.csv
-git add *.json
-git add *.log
-git commit -m "${log_base} update stats"
-git push fenix-mobile master -q
+#git add *.csv
+#git add *.json
+#git add *.log
+#git commit -m "${log_base} update stats"
+#git push fenix-mobile master -q
 cd ${cwd}
 
 cd ${iwashere}

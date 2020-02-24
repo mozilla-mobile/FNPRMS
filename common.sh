@@ -1,12 +1,36 @@
+#!/usr/bin/env bash
+
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #
 # Common functions used throughout FNPRMS
 
-# Constant for use in other scripts to be able to easily locate
-# adb on the system.
-ADB="/opt/fnprms/Android/Sdk/platform-tools/adb"
+# number of harness iterations
+export fpm_iterations=100
+
+# base directory for harness output
+export fpm_prefix_dir=/opt/mozilla/FNPRMS
+
+# directory for harness output from scheduled runs
+export fpm_log_dir=${fpm_prefix_dir}_${HOSTNAME}_${fpm_dev_name}_${fpm_product}
+
+# sanity check output directory exits
+if [ ! -d $fpm_log_dir ]; then
+   mkdir -p $fpm_log_dir
+fi
+
+# test date, in ISO form "2020.02.21"
+export test_date=`date +"%Y.%m.%d"`
+
+# application binary location and name
+export dl_apk_path=`printf "%s/%s/" \`pwd\` \`echo "bin/"\` \`date +"%Y/%m/%d"\``;
+export dl_apk_name=${fpm_product}.apk
+
+# Report enviornmental and arguments to log file
+echo "with iterations:" ${fpm_iterations}
+echo "with prefix directory:" ${fpm_prefix_dir}
+echo "with log directory:" ${fpm_log_dir}
 
 # sweep_files_older_than
 #
@@ -142,41 +166,41 @@ function intent_for_configuration {
   case ${use_case} in
     al)
       case ${product} in
-        fenix-nightly)
-          echo '-d "about:blank" -a android.intent.action.VIEW org.mozilla.fenix.nightly/org.mozilla.fenix.IntentReceiverActivity'
-          ;;
-        fenix-performance)
-          echo '-d "about:blank" -a android.intent.action.VIEW org.mozilla.fenix.performancetest/org.mozilla.fenix.IntentReceiverActivity'
-          ;;
-        fennec)
-          echo '-t "text/html" -d "about:blank" -a android.intent.action.VIEW org.mozilla.firefox/org.mozilla.gecko.LauncherActivity'
-          ;;
+	fenix-nightly)
+	  echo '-d "about:blank" -a android.intent.action.VIEW org.mozilla.fenix.nightly/org.mozilla.fenix.IntentReceiverActivity'
+	  ;;
+	fenix-performance)
+	  echo '-d "about:blank" -a android.intent.action.VIEW org.mozilla.fenix.performancetest/org.mozilla.fenix.IntentReceiverActivity'
+	  ;;
+	fennec)
+	  echo '-t "text/html" -d "about:blank" -a android.intent.action.VIEW org.mozilla.firefox/org.mozilla.gecko.LauncherActivity'
+	  ;;
       esac
       ;;
     ha)
       case ${product} in
-        fenix-nightly)
-          echo "-a android.intent.action.VIEW org.mozilla.fenix.nightly/org.mozilla.fenix.HomeActivity"
-          ;;
-        fenix-performance)
-          echo "-a android.intent.action.VIEW org.mozilla.fenix.performancetest/org.mozilla.fenix.HomeActivity"
-          ;;
-        fennec)
-          echo "-a android.intent.action.VIEW org.mozilla.firefox/org.mozilla.gecko.BrowserApp"
-          ;;
+	fenix-nightly)
+	  echo "-a android.intent.action.VIEW org.mozilla.fenix.nightly/org.mozilla.fenix.HomeActivity"
+	  ;;
+	fenix-performance)
+	  echo "-a android.intent.action.VIEW org.mozilla.fenix.performancetest/org.mozilla.fenix.HomeActivity"
+	  ;;
+	fennec)
+	  echo "-a android.intent.action.VIEW org.mozilla.firefox/org.mozilla.gecko.BrowserApp"
+	  ;;
       esac
       ;;
     hanoob)
       case ${product} in
-        fenix-nightly)
-          return 1
-          ;;
-        fenix-performance)
-          return 1
-          ;;
-        fennec)
-          return 1
-          ;;
+	fenix-nightly)
+	  return 1
+	  ;;
+	fenix-performance)
+	  return 1
+	  ;;
+	fennec)
+	  return 1
+	  ;;
       esac
       ;;
   esac
@@ -184,7 +208,7 @@ function intent_for_configuration {
   return 0
 }
 
-# download_apk 
+# download_apk
 #
 # Params:
 # 1: url_template
@@ -199,7 +223,7 @@ function intent_for_configuration {
 #
 # Return Value:
 # 0 if the apk was downloaded successfully; curl's return value, otherwise.
-function download_apk { 
+function download_apk {
   url_template=$1
   shift
   date_to_fetch=$1
