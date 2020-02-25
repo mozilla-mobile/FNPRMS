@@ -140,7 +140,12 @@ def calculate(dirname: str, tipe: Type, product: str, formatter: Callable[[Mappi
   stats_filename: str = ""
   calculations: MutableMapping[str, str] = {}
   for stats_filename in glob.glob(dirname + "/*-" + str(tipe) + ".log"):
-    runtime: Runtime = Runtime(product, stats_filename)
+    date_num = re.sub('[^0-9]','', stats_filename)
+    runtime : Runtime
+    if int(date_num) < 20200224:
+        runtime = Runtime("fenix-nightly", stats_filename)
+    else:
+        runtime = Runtime(product, stats_filename)
     result: str = "NA"
     try:
       result = str(runtime.time())

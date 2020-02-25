@@ -33,12 +33,17 @@ if [ "$DEVICEID" -eq "4" ]; then
     export fpm_dev_name=pixel_3a_xl
 fi
 
+if [ "$DEVICEID" -eq "5" ]; then
+    export fpm_dev_id=5
+    export fpm_dev_serial=ZY322LH7ZL
+    export fpm_dev_name=moto_g5
+fi
 # Constant for use in other scripts to be able to easily locate
 # adb on the system.
 # NB: Mozilla builds need to have adb and android tools in sync. Assume
 # this is already configured correctly in the enviornment, but note
 # exact location here.
-fpm_adb="/home/bkoz/.mozbuild/android-sdk-linux/platform-tools/adb"
+fpm_adb="/opt/fnprms/Android/Sdk/platform-tools/adb"
 export ADB="${fpm_adb} -s ${fpm_dev_serial}"
 
 # Report results.

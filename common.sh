@@ -13,7 +13,7 @@ export fpm_iterations=100
 export fpm_prefix_dir=/opt/mozilla/FNPRMS
 
 # directory for harness output from scheduled runs
-export fpm_log_dir=${fpm_prefix_dir}_${HOSTNAME}_${fpm_dev_name}_${fpm_product}
+export fpm_log_dir=/opt/fnprms/run_logs
 
 # sanity check output directory exits
 if [ ! -d $fpm_log_dir ]; then
