@@ -7,6 +7,7 @@
 # Parses log files, calculates average time for the included test runs, and
 # saves the result to disk.
 
+import datetime
 import glob
 from enum import Enum
 import re
@@ -60,10 +61,11 @@ class Type(Enum):
 
 
 class Runtime:
-  def __init__(self: 'Runtime', product: str, runlog_path: str):
+  def __init__(self: 'Runtime', product: str, tipe: Type, runlog_path: str):
     print("Using " + product + " as a variant!")
     self.runlog_path = runlog_path
     self.product = product
+    self.tipe = tipe
 
   def date(self: 'Runtime') -> str:
     result: str = os.path.basename(self.runlog_path)
@@ -71,6 +73,11 @@ class Runtime:
     return result
 
   def time(self: 'Runtime') -> float:
+    # https://github.com/mozilla-mobile/fenix/issues/8865: we had to update app link in a hurry
+    # so we do our own thing. We shove the whole thing into a single method to save implementation time.
+    if self.tipe == Type.AL:
+      return Runtime.time_app_link(self)
+
     with open(self.runlog_path) as stats_fd:
       displayed = Runtime.find_displayed_lines(self.product, stats_fd)
 
@@ -91,6 +98,87 @@ class Runtime:
       count += 1
 
     return total / (count * 1.0)
+
+  @staticmethod
+  def time_app_link(self: 'Runtime') -> List[str]:
+    """
+    Finds the lines needed to parse the duration of app link.
+
+    For each run in Fennec, we expect the following relevant logs:
+      - Intent start
+      - page load stop
+
+    For each run in Fenix, we expect the following relevant logs:
+      - Intent start
+      - page load stop about:blank
+      - page load stop intended site (this is probably a bug)
+      - page load stop intended site (we should use this one)
+
+    For each, we use the timestamps of first and last logs to determine the duration.
+    """
+    #if self.product == 'Fennec'
+    logcat_timestamp_capture_re = '(\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3})'
+
+    # Example: 02-28 13:59:46.424  1308 12190 I ActivityTaskManager: START u0 {act=android.intent.action.VIEW dat=https://example.com/... typ=text/html flg=0x10000000 cmp=org.mozilla.firefox/org.mozilla.gecko.LauncherActivity} from uid 2000
+    fennec_intent = re.compile(logcat_timestamp_capture_re +
+        '.*Activity.*Manager: START.*org.mozilla.firefox/org.mozilla.gecko.LauncherActivity')
+
+    # Example: 02-28 14:00:29.883  4497  4497 I GeckoTabs: zerdatime 975995111 - page load stop
+    fennec_stop = re.compile(logcat_timestamp_capture_re +
+        '.*GeckoTabs:.*page load stop$')
+
+    print_lines = True
+    durations = []
+    with open(self.runlog_path) as f:
+      start = ''
+      for line in f:
+        match = fennec_intent.match(line)
+        if match:
+          if start:
+            raise ValueError('found two start lines in a row')
+          start = match.group(1)
+          if print_lines: print(match.group(0))
+          continue
+
+        match = fennec_stop.match(line)
+        if match:
+          if not start:
+            raise ValueError('start was not set')
+          stop = match.group(1)
+          if print_lines: print(match.group(0))
+
+          diff = Runtime.get_duration_between_timestamps(start, stop)
+          durations.append(diff)
+
+          # reset for next match
+          start = 0
+
+    return Runtime.calculate_average_app_link(durations)
+
+  @staticmethod
+  def calculate_average_app_link(durations):
+    float_durations = [d.total_seconds() for d in durations]
+    return sum(float_durations) / len(float_durations)
+
+  @staticmethod
+  def get_duration_between_timestamps(start, stop):
+    start_date = Runtime.parse_logcat_timestamp(start)
+    stop_date = Runtime.parse_logcat_timestamp(stop)
+    return stop_date - start_date
+
+  @staticmethod
+  def parse_logcat_timestamp(timestamp):
+    # TODO: this will break across year boundaries because we cannot parse a year.
+
+    # Example: 02-28 14:00:29.883
+    #
+    # strptime can't parse milliseconds, only microseconds, so we omit it.
+    timestamp_no_ms = timestamp[:-4]
+    date_no_ms = datetime.datetime.strptime(timestamp_no_ms, '%m-%d %H:%M:%S')
+
+    # Add the ms back.
+    date_ms = datetime.timedelta(milliseconds = int(timestamp[-3:]))
+    return date_no_ms + date_ms
 
   @staticmethod
   def find_displayed_lines(product, fd) -> List[str]:
@@ -143,9 +231,9 @@ def calculate(dirname: str, tipe: Type, product: str, formatter: Callable[[Mappi
     date_num = re.sub('[^0-9]','', stats_filename)
     runtime : Runtime
     if int(date_num) < 20200224:
-        runtime = Runtime("fenix-nightly", stats_filename)
+        runtime = Runtime("fenix-nightly", tipe, stats_filename)
     else:
-        runtime = Runtime(product, stats_filename)
+        runtime = Runtime(product, tipe, stats_filename)
     result: str = "NA"
     try:
       result = str(runtime.time())

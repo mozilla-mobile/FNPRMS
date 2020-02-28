@@ -173,7 +173,7 @@ function intent_for_configuration {
 	  echo '-d "about:blank" -a android.intent.action.VIEW org.mozilla.fenix.performancetest/org.mozilla.fenix.IntentReceiverActivity'
 	  ;;
 	fennec)
-	  echo '-t "text/html" -d "about:blank" -a android.intent.action.VIEW org.mozilla.firefox/org.mozilla.gecko.LauncherActivity'
+	  echo '-t "text/html" -d "https://example.com" -a android.intent.action.VIEW org.mozilla.firefox/org.mozilla.gecko.LauncherActivity'
 	  ;;
       esac
       ;;
