@@ -34,6 +34,8 @@ DisplayedLinesTime = re.compile(r"""
 """, re.VERBOSE)
 RunlogPathStripTagExtension = re.compile(r"-.*.log$")
 
+LOGCAT_TIMESTAMP_CAPTURE_RE = '(\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3})'
+
 
 def validate_product(product: str) -> bool:
   if product == "fennec" or \
@@ -104,10 +106,6 @@ class Runtime:
     """
     Finds the lines needed to parse the duration of app link.
 
-    For each run in Fennec, we expect the following relevant logs:
-      - Intent start
-      - page load stop
-
     For each run in Fenix, we expect the following relevant logs:
       - Intent start
       - page load stop about:blank
@@ -117,43 +115,122 @@ class Runtime:
     For each, we use the timestamps of first and last logs to determine the duration.
     """
     #if self.product == 'Fennec'
-    logcat_timestamp_capture_re = '(\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3})'
+
+    print_lines = True
+    with open(self.runlog_path) as f:
+      if self.product == 'fennec':
+        durations = Runtime.get_durations_fennec(f, print_lines)
+      else:
+        durations = Runtime.get_durations_fenix(f, print_lines)
+
+    return Runtime.calculate_average_app_link(durations)
+
+  @staticmethod
+  def get_durations_fenix(f, print_lines):
+    """
+    For each run in Fenix, we expect the following relevant logs:
+      - START: Intent start
+      - page load stop about:blank
+      - page load stop intended site (this is probably a bug)
+      - END: page load stop intended site (we should use this one)
+
+    For each, we use the timestamps of START and END to make our calculations.
+    """
+
+    # Example: 02-28 15:45:23.895  1308  3152 I ActivityTaskManager: START u0 {act=android.intent.action.VIEW dat=https://example.com/... flg=0x10000000 cmp=org.mozilla.fenix.nightly/org.mozilla.fenix.IntentReceiverActivity} from uid 2000
+    fenix_intent = re.compile(LOGCAT_TIMESTAMP_CAPTURE_RE +
+        '.*Activity.*Manager: START.*org.mozilla.fennec_aurora/org.mozilla.fenix.IntentReceiverActivity')
+
+    # Example: 02-28 15:45:03.910 D/GeckoSession( 9812): handleMessage GeckoView:PageStart uri=https://example.com/
+    fenix_page_start = re.compile(LOGCAT_TIMESTAMP_CAPTURE_RE +
+        '.*GeckoSession.* handleMessage GeckoView:PageStart uri=')
+
+    # Example: 02-28 15:45:03.928 D/GeckoSession( 9812): handleMessage GeckoView:PageStop uri=null
+    fenix_stop = re.compile(LOGCAT_TIMESTAMP_CAPTURE_RE +
+        '.*GeckoSession.* handleMessage GeckoView:PageStop uri=null')
+
+    # This repeats get_durations_fennec but it's quicker/easier to do this than to come up with
+    # a combined solution.
+    durations = []
+    intent = ''
+    page_start_count = 0
+    for line in f:
+      match = fenix_intent.match(line)
+      if match:
+        if intent:
+          raise ValueError('found two start lines in a row')
+        intent = match.group(1)
+        if print_lines: print(match.group(0))
+        continue
+
+      match = fenix_page_start.match(line)
+      if match:
+        if not intent or page_start_count > 3:
+          raise ValueError('expected START to be seen first')
+        page_start_count += 1
+        continue
+
+      match = fenix_stop.match(line)
+      if match and page_start_count == 3:
+        if not intent:
+          raise ValueError('intent was not set')
+        stop = match.group(1)
+        if print_lines: print(match.group(0))
+
+        diff = Runtime.get_duration_between_timestamps(intent, stop)
+        durations.append(diff)
+
+        # reset for next match
+        intent = ''
+        page_start_count = 0
+
+    return durations
+
+  @staticmethod
+  def get_durations_fennec(f, print_lines):
+    """
+    For each run in Fennec, we expect the following relevant logs:
+      - START: Intent start
+      - END: page load stop
+
+    For each, we use the timestamps of START and END to make our calculations.
+    """
 
     # Example: 02-28 13:59:46.424  1308 12190 I ActivityTaskManager: START u0 {act=android.intent.action.VIEW dat=https://example.com/... typ=text/html flg=0x10000000 cmp=org.mozilla.firefox/org.mozilla.gecko.LauncherActivity} from uid 2000
-    fennec_intent = re.compile(logcat_timestamp_capture_re +
+    fennec_intent = re.compile(LOGCAT_TIMESTAMP_CAPTURE_RE +
         '.*Activity.*Manager: START.*org.mozilla.firefox/org.mozilla.gecko.LauncherActivity')
 
     # Example: 02-28 14:00:29.883  4497  4497 I GeckoTabs: zerdatime 975995111 - page load stop
-    fennec_stop = re.compile(logcat_timestamp_capture_re +
+    fennec_stop = re.compile(LOGCAT_TIMESTAMP_CAPTURE_RE +
         '.*GeckoTabs:.*page load stop$')
 
-    print_lines = True
+    # This repeats get_durations_fenix but it's quicker/easier to do this than to come up with
+    # a combined solution.
     durations = []
-    with open(self.runlog_path) as f:
-      start = ''
-      for line in f:
-        match = fennec_intent.match(line)
-        if match:
-          if start:
-            raise ValueError('found two start lines in a row')
-          start = match.group(1)
-          if print_lines: print(match.group(0))
-          continue
+    start = ''
+    for line in f:
+      match = fennec_intent.match(line)
+      if match:
+        if start:
+          raise ValueError('found two start lines in a row')
+        start = match.group(1)
+        if print_lines: print(match.group(0))
+        continue
 
-        match = fennec_stop.match(line)
-        if match:
-          if not start:
-            raise ValueError('start was not set')
-          stop = match.group(1)
-          if print_lines: print(match.group(0))
+      match = fennec_stop.match(line)
+      if match:
+        if not start:
+          raise ValueError('start was not set')
+        stop = match.group(1)
+        if print_lines: print(match.group(0))
 
-          diff = Runtime.get_duration_between_timestamps(start, stop)
-          durations.append(diff)
+        diff = Runtime.get_duration_between_timestamps(start, stop)
+        durations.append(diff)
 
-          # reset for next match
-          start = 0
+        # reset for next match
+        start = ''
 
-    return Runtime.calculate_average_app_link(durations)
+    return durations
 
   @staticmethod
   def calculate_average_app_link(durations):

@@ -32,6 +32,8 @@ echo "with iterations:" ${fpm_iterations}
 echo "with prefix directory:" ${fpm_prefix_dir}
 echo "with log directory:" ${fpm_log_dir}
 
+APP_LINK_URL="https://example.com"
+
 # sweep_files_older_than
 #
 # Params:
@@ -121,7 +123,7 @@ function package_name_for_product {
   fi
     case ${product} in
     fenix-nightly)
-      echo "org.mozilla.fenix.nightly"
+      echo "org.mozilla.fennec_aurora"
       ;;
     fenix-performance)
       echo "org.mozilla.fenix.performancetest"
@@ -167,13 +169,13 @@ function intent_for_configuration {
     al)
       case ${product} in
 	fenix-nightly)
-	  echo '-d "about:blank" -a android.intent.action.VIEW org.mozilla.fenix.nightly/org.mozilla.fenix.IntentReceiverActivity'
+	  echo "-d $APP_LINK_URL -a android.intent.action.VIEW org.mozilla.fennec_aurora/org.mozilla.fenix.IntentReceiverActivity"
 	  ;;
 	fenix-performance)
 	  echo '-d "about:blank" -a android.intent.action.VIEW org.mozilla.fenix.performancetest/org.mozilla.fenix.IntentReceiverActivity'
 	  ;;
 	fennec)
-	  echo '-t "text/html" -d "https://example.com" -a android.intent.action.VIEW org.mozilla.firefox/org.mozilla.gecko.LauncherActivity'
+	  echo "-t 'text/html' -d $APP_LINK_URL -a android.intent.action.VIEW org.mozilla.firefox/org.mozilla.gecko.LauncherActivity"
 	  ;;
       esac
       ;;
