@@ -184,6 +184,7 @@ class Runtime:
         intent = ''
         page_start_count = 0
 
+    print('found iteration count: ' + str(len(durations))) # sanity check.
     return durations
 
   @staticmethod
@@ -230,6 +231,7 @@ class Runtime:
         # reset for next match
         start = ''
 
+    print('found iteration count: ' + str(len(durations))) # sanity check.
     return durations
 
   @staticmethod
