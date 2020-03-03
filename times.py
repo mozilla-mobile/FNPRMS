@@ -345,6 +345,13 @@ if __name__ == "__main__":
   output_dir = arguments.output_dir
   product = arguments.product
 
+  # This variant is added on the TOR machine to make common_products.sh work
+  # with a separate armv7 URL. However, this script won't work because it hardcodes
+  # support for each variant. To simplify implementation, we just transform the variant
+  # into the appropriate supported one.
+  if product == 'fennec-nightly-g5':
+    product = 'fennec-nightly'
+
   if (not validate_product(product)):
     print("Cannot run with invalid product: " + product + ".")
   else:
