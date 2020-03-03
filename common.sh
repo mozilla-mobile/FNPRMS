@@ -92,7 +92,7 @@ function validate_product {
   product=$1
 
   case ${product} in
-    fennec|fenix-nightly|fenix-performance)
+    fennec|fenix-nightly|fenix-performance|fennec-nightly)
       ;;
     *)
       return 1

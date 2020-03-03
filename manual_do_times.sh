@@ -16,7 +16,7 @@ cd ${iamhere}
 log_dir=/opt/fnprms/manual/
 
 if [ $# -ne 1 ]; then
-  echo "$0 <fennec|fenix-nightly|fenix-performance>";
+  echo "$0 <fennec|fenix-nightly|fenix-performance|fennec-nightly|fennec-nightly-g5>";
   exit
 fi
 
