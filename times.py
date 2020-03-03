@@ -64,7 +64,7 @@ class Type(Enum):
 
 class Runtime:
   def __init__(self: 'Runtime', product: str, tipe: Type, runlog_path: str):
-    print("Using " + product + " as a variant!")
+    print("Using " + product + " as a variant! " + runlog_path)
     self.runlog_path = runlog_path
     self.product = product
     self.tipe = tipe
