@@ -236,6 +236,9 @@ class Runtime:
 
   @staticmethod
   def calculate_average_app_link(durations):
+    if len(durations) == 0:
+      raise ValueError('Did not find any matching lines for variant: is the intent configured correctly?')
+
     float_durations = [d.total_seconds() for d in durations]
     return sum(float_durations) / len(float_durations)
 
