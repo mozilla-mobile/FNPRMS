@@ -77,7 +77,8 @@ class Runtime:
   def time(self: 'Runtime') -> float:
     # https://github.com/mozilla-mobile/fenix/issues/8865: we had to update app link in a hurry
     # so we do our own thing. We shove the whole thing into a single method to save implementation time.
-    if self.tipe == Type.AL:
+    # It only supports fennec-nightly & fennec.
+    if (self.product == 'fennec-nightly' or self.product == 'fennec') and self.tipe == Type.AL:
       return Runtime.time_app_link(self)
 
     with open(self.runlog_path) as stats_fd:
@@ -312,7 +313,10 @@ def calculate(dirname: str, tipe: Type, product: str, formatter: Callable[[Mappi
   for stats_filename in glob.glob(dirname + "/*-" + str(tipe) + ".log"):
     date_num = re.sub('[^0-9]','', stats_filename)
     runtime : Runtime
-    if int(date_num) < 20200224:
+
+    # We only started to use `fennec-nightly` builds after this date.
+    is_fennec_nightly_available = int(date_num) >= 20200224
+    if not is_fennec_nightly_available:
         runtime = Runtime("fenix-nightly", tipe, stats_filename)
     else:
         runtime = Runtime(product, tipe, stats_filename)
