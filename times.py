@@ -255,9 +255,13 @@ class Runtime:
 
     # Example: 02-28 14:00:29.883
     #
+    # We can't parse a year and it's not worth fully supporting right now but we
+    # need to support leap years if we want values on Feb 29 to work so we append an
+    # arbitrary known leap year.
+    timestamp_no_ms = timestamp[:-4] + ' 2020'
+
     # strptime can't parse milliseconds, only microseconds, so we omit it.
-    timestamp_no_ms = timestamp[:-4]
-    date_no_ms = datetime.datetime.strptime(timestamp_no_ms, '%m-%d %H:%M:%S')
+    date_no_ms = datetime.datetime.strptime(timestamp_no_ms, '%m-%d %H:%M:%S %Y')
 
     # Add the ms back.
     date_ms = datetime.timedelta(milliseconds = int(timestamp[-3:]))
