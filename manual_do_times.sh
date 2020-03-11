@@ -12,6 +12,8 @@ iamhere=${iamhere/./${iwashere}}
 cd ${iamhere}
 
 log_dir=/opt/fnprms/manual/
+USAGE="usage: <fennec|fenix-nightly|fenix-performance|fennec-nightly|fennec-nightly-g5>"
+
 # multi-device was added for FNPRMS in SF, which isn't where manual_test is expected to run.
 #DEVICEID=$1
 PRODUCTID=$1
@@ -20,6 +22,7 @@ PRODUCTID=$1
 . common_products.sh $PRODUCTID
 . common.sh
 
+validate_product "$USAGE"
 
 {
   ./times.py --product $PRODUCTID --input_dir ${log_dir} --output_dir ${log_dir}
