@@ -55,29 +55,6 @@ function sweep_files_older_than {
   done
 }
 
-# validate_product
-#
-# Params:
-# 1: product
-#
-# Determine whether _product_ is valid
-#
-# Return Value:
-# 0 if _product_ is a valid product; 1 otherwise.
-function validate_product {
-  product=$1
-
-  case ${product} in
-    fennec|fenix-nightly|fenix-performance|fennec-nightly)
-      ;;
-    *)
-      return 1
-      ;;
-  esac
-
-  return 0
-}
-
 # download_apk
 #
 # Params:
