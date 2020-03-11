@@ -23,9 +23,17 @@ fenix_homeactivity_start_command='am start-activity org.mozilla.fenix.nightly/or
 fenix_applink_start_command="am start-activity -t 'text/html' -d '$APPLINK_URL' -a android.intent.action.VIEW org.mozilla.fenix.nightly/org.mozilla.fenix.IntentReceiverActivity"
 fenix_url_template="https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/project.mobile.fenix.v2.nightly.DATE.latest/artifacts/public/build/armeabi-v7a/geckoNightly/target.apk"
 
+fenix_perf_homeactivity_start_command='am start-activity org.mozilla.fenix.performancetest/org.mozilla.fenix.HomeActivity'
+fenix_perf_applink_start_command="am start-activity -t 'text/html' -d '$APPLINK_URL' -a android.intent.action.VIEW org.mozilla.fenix.performancetest/org.mozilla.fenix.IntentReceiverActivity"
+#fenix_perf_url_template="https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/project.mobile.fenix.v2.nightly.DATE.latest/artifacts/public/build/armeabi-v7a/geckoNightly/target.apk"
+
 fennec_homeactivity_start_command='am start-activity org.mozilla.fennec_aurora/.App'
 fennec_applink_start_command="am start-activity -t 'text/html' -d '$APPLINK_URL' -a android.intent.action.VIEW org.mozilla.fennec_aurora/org.mozilla.fenix.IntentReceiverActivity"
 fennec_url_template="https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/project.mobile.fenix.v2.fennec-nightly.DATE.latest/artifacts/public/build/arm64-v8a/geckoNightly/target.apk"
+
+fennec_68_homeactivity_start_command='am start-activity org.mozilla.firefox/.App'
+fennec_68_applink_start_command="am start-activity -t 'text/html' -d '$APPLINK_URL' -a android.intent.action.VIEW org.mozilla.firefox/org.mozilla.gecko.LauncherActivity"
+#fennec_68_url_template="https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/project.mobile.fenix.v2.fennec-nightly.DATE.latest/artifacts/public/build/arm64-v8a/geckoNightly/target.apk"
 
 fennec_url_template_g5="https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/project.mobile.fenix.v2.fennec-nightly.DATE.latest/artifacts/public/build/armeabi-v7a/geckoNightly/target.apk"
 
@@ -50,6 +58,24 @@ if [ "$PRODUCTID" = "fennec-nightly-g5" ]; then
     export apk_url_template=$fennec_url_template_g5
     export applink_start_command=$fennec_applink_start_command
     export homeactivity_start_command=$fennec_homeactivity_start_command
+fi
+
+if [ "$PRODUCTID" = "fenix-performance" ]; then
+    echo "$PRODUCTID: only manual_* tests supported. Please add url_template to use test*."
+
+    export apk_package=org.mozilla.fenix.performancetest
+    #export apk_url_template=
+    export applink_start_command=$fenix_perf_applink_start_command
+    export homeactivity_start_command=$fenix_perf_homeactivity_start_command
+fi
+
+if [ "$PRODUCTID" = "fennec" ]; then
+    echo "$PRODUCTID: only manual_* tests supported. Please add url_template to use test*."
+
+    export apk_package=org.mozilla.firefox
+    #export apk_url_template=
+    export applink_start_command=$fennec_68_applink_start_command
+    export homeactivity_start_command=$fennec_68_homeactivity_start_command
 fi
 
 # Report results
