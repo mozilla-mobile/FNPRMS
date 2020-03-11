@@ -3,7 +3,7 @@ import unittest
 import sys
 
 sys.path[:0] = [os.path.abspath(os.path.join(__file__, '..', '..'))]
-import times
+import times  # noqa: E402
 
 
 class TestTimes(unittest.TestCase):
