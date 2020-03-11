@@ -13,11 +13,17 @@ APPLINK_URL="https://example.com"
 
 # Define "parameters" needed to execute all the tests. These names should
 # be self explanatory. See README.md for customization information.
+#
+# fenix-nightly and fennec-nightly launch to different activities when you
+# hit the homescreen icon so the discrepancy is intentional.
+#
+# When they print logs, they both display "Fully drawn...HomeActivity" though
+# because this is ultimately the final activity displayed.
 fenix_homeactivity_start_command='am start-activity org.mozilla.fenix.nightly/org.mozilla.fenix.HomeActivity'
 fenix_applink_start_command="am start-activity -t 'text/html' -d "$APPLINK_URL" -a android.intent.action.VIEW org.mozilla.fenix.nightly/org.mozilla.fenix.IntentReceiverActivity"
 fenix_url_template="https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/project.mobile.fenix.v2.nightly.DATE.latest/artifacts/public/build/armeabi-v7a/geckoNightly/target.apk"
 
-fennec_homeactivity_start_command='am start-activity org.mozilla.fennec_aurora/org.mozilla.fenix.HomeActivity'
+fennec_homeactivity_start_command='am start-activity org.mozilla.fennec_aurora/.App'
 fennec_applink_start_command="am start-activity -t 'text/html' -d "$APPLINK_URL" -a android.intent.action.VIEW org.mozilla.fennec_aurora/org.mozilla.fenix.IntentReceiverActivity"
 fennec_url_template="https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/project.mobile.fenix.v2.fennec-nightly.DATE.latest/artifacts/public/build/arm64-v8a/geckoNightly/target.apk"
 
