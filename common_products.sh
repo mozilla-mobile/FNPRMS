@@ -27,7 +27,7 @@ fennec_homeactivity_start_command='am start-activity org.mozilla.fennec_aurora/.
 fennec_applink_start_command="am start-activity -t 'text/html' -d "$APPLINK_URL" -a android.intent.action.VIEW org.mozilla.fennec_aurora/org.mozilla.fenix.IntentReceiverActivity"
 fennec_url_template="https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/project.mobile.fenix.v2.fennec-nightly.DATE.latest/artifacts/public/build/arm64-v8a/geckoNightly/target.apk"
 
-fennec_url_template_g5="https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/project.mobile.fenix.v2.fennec-nightly.2020.02.24.latest/artifacts/public/build/armeabi-v7a/geckoNightly/target.apk"
+fennec_url_template_g5="https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/project.mobile.fenix.v2.fennec-nightly.DATE.latest/artifacts/public/build/armeabi-v7a/geckoNightly/target.apk"
 
 export fpm_product=$PRODUCTID
 
