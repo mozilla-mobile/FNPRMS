@@ -11,26 +11,18 @@ iwashere=`pwd`
 iamhere=${iamhere/./${iwashere}}
 cd ${iamhere}
 
+log_dir=/opt/fnprms/manual/
+# multi-device was added for FNPRMS in SF, which isn't where manual_test is expected to run.
+#DEVICEID=$1
+PRODUCTID=$1
+
+# . common_devices.sh $DEVICEID
+. common_products.sh $PRODUCTID
 . common.sh
 
-log_dir=/opt/fnprms/manual/
-
-if [ $# -ne 1 ]; then
-  echo "$0 <fennec|fenix-nightly|fenix-performance|fennec-nightly|fennec-nightly-g5>";
-  exit
-fi
-
-product=$1
-shift
-
-validate_product ${product}
-if [ $? -ne 0 ]; then
-  echo "Invalid product name."
-  exit
-fi
 
 {
-  ./times.py --product ${product} --input_dir ${log_dir} --output_dir ${log_dir}
+  ./times.py --product $PRODUCTID --input_dir ${log_dir} --output_dir ${log_dir}
 }
 
 cd ${iwashere}
