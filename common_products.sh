@@ -81,3 +81,11 @@ fi
 # Report results
 echo  "product is: $PRODUCTID"
 echo  "package is: ${apk_package}"
+
+# $1 = usage str
+function validate_product {
+    if [ -z "$apk_package" ]; then
+        echo $1
+        exit 1
+    fi
+}

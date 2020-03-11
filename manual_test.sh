@@ -25,6 +25,8 @@ PRODUCTID=$3
 . common_products.sh $PRODUCTID
 . common.sh
 
+validate_product "$USAGE"
+
 case $use_case in
   al)
     command=$applink_start_command
