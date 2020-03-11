@@ -32,7 +32,6 @@ echo "with iterations:" ${fpm_iterations}
 echo "with prefix directory:" ${fpm_prefix_dir}
 echo "with log directory:" ${fpm_log_dir}
 
-APP_LINK_URL="https://example.com"
 
 # sweep_files_older_than
 #
@@ -56,29 +55,6 @@ function sweep_files_older_than {
   done
 }
 
-# validate_use_case
-#
-# Params:
-# 1: use_case
-#
-# Determine if _use_case_ is valid.
-#
-# Return Value:
-# 0 if _use_case_ is valid; 1 otherwise
-function validate_use_case {
-  use_case=$1
-
-  case ${use_case} in
-    ha|al|hanoob)
-      ;;
-    *)
-      return 1
-      ;;
-  esac
-
-  return 0
-}
-
 # validate_product
 #
 # Params:
@@ -96,114 +72,6 @@ function validate_product {
       ;;
     *)
       return 1
-      ;;
-  esac
-
-  return 0
-}
-
-# package_name_for_product
-#
-# Params:
-# 1: product
-#
-# Get the package name corresponding to the product
-#
-# Output:
-# A string representing the package name of _product_
-# Return Value:
-# 1 if _product_ is not a valid product; 0 otherwise.
-function package_name_for_product {
-  product=$1
-  shift
-
-  validate_product ${product}
-  if [ $? -ne 0 ]; then
-    return 1
-  fi
-    case ${product} in
-    fenix-nightly)
-      echo "org.mozilla.fennec_aurora"
-      ;;
-    fenix-performance)
-      echo "org.mozilla.fenix.performancetest"
-      ;;
-    fennec)
-      echo "org.mozilla.firefox"
-      ;;
-  esac
-  return 0
-}
-
-# intent_for_configuration
-#
-# Params:
-# 1: use_case
-# 2: product
-#
-# For the _use_case_ of _product_, get an intent that can be
-# used to launch the app in that way.
-#
-# Output:
-# The intent, usable with adb start, that will launch _product_
-# for _use_case_.
-# Return Value:
-# 1 if either _product_ or _use_case_ are invalid; 0 otherwise.
-function intent_for_configuration {
-  use_case=$1
-  shift
-  product=$1
-  shift
-
-  validate_use_case ${use_case}
-  if [ $? -ne 0 ]; then
-    return 1
-  fi
-
-  validate_product ${product}
-  if [ $? -ne 0 ]; then
-    return 1
-  fi
-
-  case ${use_case} in
-    al)
-      case ${product} in
-	fenix-nightly)
-	  echo "-d $APP_LINK_URL -a android.intent.action.VIEW org.mozilla.fennec_aurora/org.mozilla.fenix.IntentReceiverActivity"
-	  ;;
-	fenix-performance)
-	  echo '-d "about:blank" -a android.intent.action.VIEW org.mozilla.fenix.performancetest/org.mozilla.fenix.IntentReceiverActivity'
-	  ;;
-	fennec)
-	  echo "-t 'text/html' -d $APP_LINK_URL -a android.intent.action.VIEW org.mozilla.firefox/org.mozilla.gecko.LauncherActivity"
-	  ;;
-      esac
-      ;;
-    ha)
-      case ${product} in
-	fenix-nightly)
-	  echo "-a android.intent.action.VIEW org.mozilla.fenix.nightly/org.mozilla.fenix.HomeActivity"
-	  ;;
-	fenix-performance)
-	  echo "-a android.intent.action.VIEW org.mozilla.fenix.performancetest/org.mozilla.fenix.HomeActivity"
-	  ;;
-	fennec)
-	  echo "-a android.intent.action.VIEW org.mozilla.firefox/org.mozilla.gecko.BrowserApp"
-	  ;;
-      esac
-      ;;
-    hanoob)
-      case ${product} in
-	fenix-nightly)
-	  return 1
-	  ;;
-	fenix-performance)
-	  return 1
-	  ;;
-	fennec)
-	  return 1
-	  ;;
-      esac
       ;;
   esac
 
