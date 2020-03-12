@@ -7,7 +7,7 @@
 # Manually run _product_ under the _use_case_ use case where the application
 # is stored in _apk_.
 
-USAGE="usage: <apk file to test> <al|hanoob> <fennec|fenix-nightly|fenix-performance|fennec-nightly|fennec-nightly-g5>"
+USAGE="usage: <apk file to test> <al|hanoob> <fennec|fennec-nightly>"
 
 iamhere=${BASH_SOURCE%/*}
 iwashere=`pwd`
