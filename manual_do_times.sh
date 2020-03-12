@@ -11,7 +11,7 @@ iwashere=`pwd`
 iamhere=${iamhere/./${iwashere}}
 cd ${iamhere}
 
-USAGE="usage: <fennec|fenix-nightly|fenix-performance|fennec-nightly|fennec-nightly-g5>"
+USAGE="usage: <fennec|fennec-nightly>"
 
 #DEVICEID=$1 # unused
 PRODUCTID=$1

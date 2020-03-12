@@ -84,7 +84,8 @@ echo  "package is: ${apk_package}"
 
 # $1 = usage str
 function validate_product {
-    if [ -z "$apk_package" ]; then
+    # At some point, the other configurations broke. Rather than fixing them, we error out.
+    if [ "$PRODUCTID" != 'fennec-nightly' ] | [ "$PRODUCTID" != 'fennec' ]; then
         echo $1
         exit 1
     fi
