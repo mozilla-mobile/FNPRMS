@@ -41,15 +41,14 @@ if [ \( "X${apk_file}" == "X" \) -o \( "X${command}" == "X" \) -o \( "X${apk_pac
   exit 1
 fi
 
-log_dir=/opt/fnprms/manual/
 test_date=`date +"%Y.%m.%d"`
 log_base=${test_date}
-run_log="${log_dir}/${log_base}.log"
+run_log="${fpm_log_dir}/${log_base}.log"
 
-maybe_create_dir ${log_dir}
+maybe_create_dir ${fpm_log_dir}
 
-maybe_create_file "${log_dir}/${log_base}-${use_case}.log"
+maybe_create_file "${fpm_log_dir}/${log_base}-${use_case}.log"
 
-run_test $apk_file "${log_dir}/${log_base}-${use_case}.log" "$apk_package" "$command" 25
+run_test $apk_file "${fpm_log_dir}/${log_base}-${use_case}.log" "$apk_package" "$command" 25
 
 cd ${iwashere}

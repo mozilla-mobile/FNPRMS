@@ -11,7 +11,6 @@ iwashere=`pwd`
 iamhere=${iamhere/./${iwashere}}
 cd ${iamhere}
 
-log_dir=/opt/fnprms/manual/
 USAGE="usage: <fennec|fenix-nightly|fenix-performance|fennec-nightly|fennec-nightly-g5>"
 
 #DEVICEID=$1 # unused
@@ -24,7 +23,7 @@ PRODUCTID=$1
 validate_product "$USAGE"
 
 {
-  ./times.py --product $PRODUCTID --input_dir ${log_dir} --output_dir ${log_dir}
+  ./times.py --product $PRODUCTID --input_dir ${fpm_log_dir} --output_dir ${fpm_log_dir}
 }
 
 cd ${iwashere}
