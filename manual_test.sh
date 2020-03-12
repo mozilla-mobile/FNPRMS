@@ -17,11 +17,10 @@ cd ${iamhere}
 apk_file=$1
 use_case=$2
 
-# multi-device was added for FNPRMS in SF, which isn't where manual_test is expected to run.
-#DEVICEID=$1
+#DEVICEID=$1 # unused
 PRODUCTID=$3
 
-# . common_devices.sh $DEVICEID
+. common_devices.sh 1 # arg doesn't matter.
 . common_products.sh $PRODUCTID
 . common.sh
 
