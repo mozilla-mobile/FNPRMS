@@ -17,20 +17,20 @@ To use the system manually, run:
 ## Installation
 
 ### Pre-run Customization:
-1. `common.sh`:
+`common_devices.sh`:
 - `ADB`: Change to the location of `adb` on the system.
 
-For tests run under automation:
-1. `test.sh`:
-- `log_dir`: Change to the location to store test output logs.
-1. `do_times.sh`:
-- `log_dir`: Change to the location where test output logs can be found. This value should match `log_dir` specified in `test.sh`.
+`common.sh`:
+- ``fpm_log_dir`: Change the location to store test output logs (default is only writable on root)
 
-For tests run manaully:
-1. `manual_test.sh`:
-- `log_dir`: Change to the location to store test output logs.
-1. `manual_dotimes.sh`:
-- `log_dir`: Change to the location where test output logs can be found. This value should match `log_dir` specified in `manual_test.sh`.
+`manual_test.sh`:
+- `run_test...`: lower integer run count if you don't want the test to take as long (though this may impact accuracy)
+
+### Running manually
+A typical invocation to run start to homescreen tests on Fenix's fennecNightly variant:
+```
+./manual_test.sh <fennec-nightly-apk> hanoob fennec-nightly && ./manual_do_times.sh fennec-nightly && cat <logs>/hanoob-results.csv
+```
 
 ## LICENSE
 
