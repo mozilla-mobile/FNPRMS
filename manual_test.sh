@@ -41,6 +41,25 @@ if [ \( "X${apk_file}" == "X" \) -o \( "X${command}" == "X" \) -o \( "X${apk_pac
   exit 1
 fi
 
+echo ""
+echo "--- RUNNING MANUAL TESTS"
+echo "--- FENIX FENNEC-NIGHTLY INSTRUCTIONS:"
+echo "- Comment out apk uninstallation & installation in run_test in common.sh."
+echo "- Install APK"
+echo "- Clear data (if was already installed)"
+echo "- (necessary in hanoob only) Clear onboarding screen manually: finishonboarding isn't work" # --finishonboarding seems broken for manual tests
+echo "- Test is not designed to measure with any open tabs, collections, or additional top sites. Test may not be accurate in this state"
+echo ""
+
+echo "--- FENNEC INSTRUCTIONS:"
+echo "- Comment out apk uninstallation & installation in run_test in common.sh."
+echo "- Install APK. If using hanoob, you MUST use the custom instrumented APK. See:"
+echo "    https://drive.google.com/drive/folders/1tnBxlrftqkjuH9OwW3FoVfD3jv4Zt4hc"
+echo "- Clear data (if was already installed)"
+echo "- (necessary in hanoob only) Clear onboarding screen manually: finishonboarding isn't work" # --finishonboarding seems broken for manual tests
+echo "- (hanoob) Test is not designed to measure if user has navigated to any website. Test may not be accurate in this state"
+echo ""
+
 test_date=`date +"%Y.%m.%d"`
 log_base=${test_date}
 run_log="${fpm_log_dir}/${log_base}.log"
