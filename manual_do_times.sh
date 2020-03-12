@@ -14,11 +14,10 @@ cd ${iamhere}
 log_dir=/opt/fnprms/manual/
 USAGE="usage: <fennec|fenix-nightly|fenix-performance|fennec-nightly|fennec-nightly-g5>"
 
-# multi-device was added for FNPRMS in SF, which isn't where manual_test is expected to run.
-#DEVICEID=$1
+#DEVICEID=$1 # unused
 PRODUCTID=$1
 
-# . common_devices.sh $DEVICEID
+. common_devices.sh 1 # value doesn't matter
 . common_products.sh $PRODUCTID
 . common.sh
 
