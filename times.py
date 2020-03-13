@@ -34,7 +34,7 @@ DisplayedLinesTime = re.compile(r"""
 """, re.VERBOSE)
 RunlogPathStripTagExtension = re.compile(r"-.*.log$")
 
-LOGCAT_TIMESTAMP_CAPTURE_RE = '(\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3})'
+LOGCAT_TIMESTAMP_CAPTURE_RE = r'(\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3})'
 
 
 def validate_product(product: str) -> bool:
@@ -115,7 +115,6 @@ class Runtime:
 
     For each, we use the timestamps of first and last logs to determine the duration.
     """
-    #if self.product == 'Fennec'
 
     print_lines = True
     with open(self.runlog_path) as f:
@@ -139,16 +138,19 @@ class Runtime:
     """
 
     # Example: 02-28 15:45:23.895  1308  3152 I ActivityTaskManager: START u0 {act=android.intent.action.VIEW dat=https://example.com/... flg=0x10000000 cmp=org.mozilla.fenix.nightly/org.mozilla.fenix.IntentReceiverActivity} from uid 2000
-    fenix_intent = re.compile(LOGCAT_TIMESTAMP_CAPTURE_RE +
-        '.*Activity.*Manager: START.*org.mozilla.fennec_aurora/org.mozilla.fenix.IntentReceiverActivity')
+    fenix_intent = re.compile(
+      LOGCAT_TIMESTAMP_CAPTURE_RE +
+      '.*Activity.*Manager: START.*org.mozilla.fennec_aurora/org.mozilla.fenix.IntentReceiverActivity')
 
     # Example: 02-28 15:45:03.910 D/GeckoSession( 9812): handleMessage GeckoView:PageStart uri=https://example.com/
-    fenix_page_start = re.compile(LOGCAT_TIMESTAMP_CAPTURE_RE +
-        '.*GeckoSession.* handleMessage GeckoView:PageStart uri=')
+    fenix_page_start = re.compile(
+      LOGCAT_TIMESTAMP_CAPTURE_RE +
+      '.*GeckoSession.* handleMessage GeckoView:PageStart uri=')
 
     # Example: 02-28 15:45:03.928 D/GeckoSession( 9812): handleMessage GeckoView:PageStop uri=null
-    fenix_stop = re.compile(LOGCAT_TIMESTAMP_CAPTURE_RE +
-        '.*GeckoSession.* handleMessage GeckoView:PageStop uri=null')
+    fenix_stop = re.compile(
+      LOGCAT_TIMESTAMP_CAPTURE_RE +
+      '.*GeckoSession.* handleMessage GeckoView:PageStop uri=null')
 
     # This repeats get_durations_fennec but it's quicker/easier to do this than to come up with
     # a combined solution.
@@ -161,7 +163,8 @@ class Runtime:
         if intent:
           raise ValueError('found two start lines in a row')
         intent = match.group(1)
-        if print_lines: print(match.group(0))
+        if print_lines:
+          print(match.group(0))
         continue
 
       match = fenix_page_start.match(line)
@@ -176,7 +179,8 @@ class Runtime:
         if not intent:
           raise ValueError('intent was not set')
         stop = match.group(1)
-        if print_lines: print(match.group(0))
+        if print_lines:
+          print(match.group(0))
 
         diff = Runtime.get_duration_between_timestamps(intent, stop)
         durations.append(diff)
@@ -185,7 +189,7 @@ class Runtime:
         intent = ''
         page_start_count = 0
 
-    print('found iteration count: ' + str(len(durations))) # sanity check.
+    print('found iteration count: ' + str(len(durations)))  # sanity check.
     return durations
 
   @staticmethod
@@ -199,12 +203,14 @@ class Runtime:
     """
 
     # Example: 02-28 13:59:46.424  1308 12190 I ActivityTaskManager: START u0 {act=android.intent.action.VIEW dat=https://example.com/... typ=text/html flg=0x10000000 cmp=org.mozilla.firefox/org.mozilla.gecko.LauncherActivity} from uid 2000
-    fennec_intent = re.compile(LOGCAT_TIMESTAMP_CAPTURE_RE +
-        '.*Activity.*Manager: START.*org.mozilla.firefox/org.mozilla.gecko.LauncherActivity')
+    fennec_intent = re.compile(
+      LOGCAT_TIMESTAMP_CAPTURE_RE +
+      '.*Activity.*Manager: START.*org.mozilla.firefox/org.mozilla.gecko.LauncherActivity')
 
     # Example: 02-28 14:00:29.883  4497  4497 I GeckoTabs: zerdatime 975995111 - page load stop
-    fennec_stop = re.compile(LOGCAT_TIMESTAMP_CAPTURE_RE +
-        '.*GeckoTabs:.*page load stop$')
+    fennec_stop = re.compile(
+      LOGCAT_TIMESTAMP_CAPTURE_RE +
+      '.*GeckoTabs:.*page load stop$')
 
     # This repeats get_durations_fenix but it's quicker/easier to do this than to come up with
     # a combined solution.
@@ -216,7 +222,8 @@ class Runtime:
         if start:
           raise ValueError('found two start lines in a row')
         start = match.group(1)
-        if print_lines: print(match.group(0))
+        if print_lines:
+          print(match.group(0))
         continue
 
       match = fennec_stop.match(line)
@@ -224,7 +231,8 @@ class Runtime:
         if not start:
           raise ValueError('start was not set')
         stop = match.group(1)
-        if print_lines: print(match.group(0))
+        if print_lines:
+          print(match.group(0))
 
         diff = Runtime.get_duration_between_timestamps(start, stop)
         durations.append(diff)
@@ -232,7 +240,7 @@ class Runtime:
         # reset for next match
         start = ''
 
-    print('found iteration count: ' + str(len(durations))) # sanity check.
+    print('found iteration count: ' + str(len(durations)))  # sanity check.
     return durations
 
   @staticmethod
@@ -264,7 +272,7 @@ class Runtime:
     date_no_ms = datetime.datetime.strptime(timestamp_no_ms, '%m-%d %H:%M:%S %Y')
 
     # Add the ms back.
-    date_ms = datetime.timedelta(milliseconds = int(timestamp[-3:]))
+    date_ms = datetime.timedelta(milliseconds=int(timestamp[-3:]))
     return date_no_ms + date_ms
 
   @staticmethod
@@ -315,8 +323,8 @@ def calculate(dirname: str, tipe: Type, product: str, formatter: Callable[[Mappi
   stats_filename: str = ""
   calculations: MutableMapping[str, str] = {}
   for stats_filename in glob.glob(dirname + "/*-" + str(tipe) + ".log"):
-    date_num = re.sub('[^0-9]','', stats_filename)
-    runtime : Runtime
+    date_num = re.sub('[^0-9]', '', stats_filename)
+    runtime: Runtime
 
     # We only started to use `fennec-nightly` builds after this date.
     is_fennec_nightly_available = int(date_num) >= 20200224
