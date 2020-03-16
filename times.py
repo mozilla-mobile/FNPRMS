@@ -26,7 +26,9 @@ DisplayedLinesRe["fennec-nightly"] = re.compile(r".*Manager: Fully drawn org.moz
 DisplayedLinesStripToTime["fenix-nightly"] = re.compile(r".*Manager: Fully drawn org.mozilla.fenix.nightly/org.mozilla.fenix.HomeActivity: \+")
 DisplayedLinesStripToTime["fenix-performance"] = re.compile(r".*Manager: Fully drawn org.mozilla.fenix.performancetest/org.mozilla.fenix.HomeActivity: \+")
 DisplayedLinesStripToTime["fennec"] = re.compile(r".*Manager: Fully drawn org.mozilla.firefox/org.mozilla.gecko.BrowserApp: \+")
-DisplayedLinesStripToTime["fennec-nightly"] = re.compile(r".*Manager: Fully drawn org.mozilla.fennec_aurora/org.mozilla.fenix.HomeActivity: \+")
+
+# fennecNightly builds launch with MigrationDecisionActivity but redirect to HomeActivity, hence we need to use the total time.
+DisplayedLinesStripToTime["fennec-nightly"] = re.compile(r".*Manager: Fully drawn org.mozilla.fennec_aurora/org.mozilla.fenix.HomeActivity: .+\(total \+")
 
 DisplayedLinesTime = re.compile(r"""
   (?:(\d+)s)?   # Find seconds if present and store in the first group
