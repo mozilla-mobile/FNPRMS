@@ -32,6 +32,12 @@ A typical invocation to run start to homescreen tests on Fenix's fennecNightly v
 ./manual_test.sh <fennec-nightly-apk> hanoob fennec-nightly && ./manual_do_times.sh fennec-nightly && cat <logs>/hanoob-results.csv
 ```
 
+### Recommended pre-push hook
+To minimize the feedback loop of development, add the recommended pre-push hook to your git hooks:
+```sh
+ln -s ../../tools/pre-push-recommended.sh .git/hooks/pre-push
+```
+
 ## LICENSE
 
     This Source Code Form is subject to the terms of the Mozilla Public
