@@ -160,7 +160,7 @@ function run_test {
 
   warmup_start_command=${start_command}
   if [ "Xtrue" == "X${finishonboarding}" ]; then
-    warmup_start_command=`echo ${start_command} | sed 's/start-activity/start-activity --ez finishonboarding true/'`
+    warmup_start_command=`echo ${start_command} | sed 's/start-activity/start-activity --ez performancetest true/'`
   fi
 
   rm -f ${log_file} > /dev/null 2>&1
