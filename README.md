@@ -19,6 +19,7 @@ To use the system manually, run:
 ### Pre-run Customization:
 `common_devices.sh`:
 - `ADB`: Change to the location of `adb` on the system.
+- `fpm_dev_serial` : Change to match the serial number(s) of the device(s) you're using.
 
 `common.sh`:
 - ``fpm_log_dir`: Change the location to store test output logs (default is only writable on root)
