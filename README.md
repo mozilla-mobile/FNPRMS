@@ -18,8 +18,13 @@ To use the system manually, run:
 
 ### Pre-run Customization:
 `common_devices.sh`:
-- `ADB`: Change to the location of `adb` on the system.
-- `fpm_dev_serial` : Change to match the serial number(s) of the device(s) you're using.
+- `fpm_adb` and `ADB`: Change to the location of `adb` on the system and remove the serial parameter. e.g.
+```
+    -fpm_adb="/opt/fnprms/Android/Sdk/platform-tools/adb"
+    -export ADB="${fpm_adb} -s ${fpm_dev_serial}"
+    +fpm_adb=".../Library/Android/sdk/platform-tools/adb"
+    +export ADB="${fpm_adb}"
+```
 
 `common.sh`:
 - ``fpm_log_dir`: Change the location to store test output logs (default is only writable on root)
