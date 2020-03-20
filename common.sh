@@ -203,6 +203,11 @@ function run_test {
     $ADB shell "input keyevent HOME"
     sleep 5
     $ADB shell "am force-stop ${package_name}"
+
+    # Wait a bit after killing the process so Android has time to
+    # reclaim memory and generally "settle down" to reduce
+    # statistical noise.
+    sleep 1
   done;
 
   $ADB logcat -d >> ${log_file} 2>&1
