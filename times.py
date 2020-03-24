@@ -14,6 +14,7 @@ import re
 from typing import Callable, List, Mapping, MutableMapping, Pattern
 import os
 import argparse
+import warnings
 
 # NB: log lines may contain either ActivityTaskManager or ActivityManager
 DisplayedLinesRe: MutableMapping[str, Pattern] = {}
@@ -337,8 +338,8 @@ def calculate(dirname: str, tipe: Type, product: str, formatter: Callable[[Mappi
     result: str = "NA"
     try:
       result = str(runtime.time())
-    except ValueError:
-      pass
+    except ValueError as ve:
+      warnings.warn('ValueError - ' + str(ve), RuntimeWarning)
     calculations[runtime.date()] = result
 
   try:
