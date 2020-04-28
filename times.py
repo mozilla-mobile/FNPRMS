@@ -16,20 +16,20 @@ import os
 import argparse
 import warnings
 
-# NB: log lines may contain either ActivityTaskManager or ActivityManager
+# NB 1: log lines may contain either ActivityTaskManager or ActivityManager
+# NB 2: log lines may contain either time or time total, regardless of *Activity or intermediates
+# see: https://developer.android.com/topic/performance/vitals/launch-time#time-initial
 DisplayedLinesRe: MutableMapping[str, Pattern] = {}
 DisplayedLinesStripToTime: MutableMapping[str, Pattern] = {}
+
 DisplayedLinesRe["fenix-nightly"] = re.compile(r".*Manager: Fully drawn org.mozilla.fenix.nightly/org.mozilla.fenix.HomeActivity.*$")
 DisplayedLinesRe["fenix-performance"] = re.compile(r".*Manager: Fully drawn org.mozilla.fenix.performancetest/org.mozilla.fenix.HomeActivity.*$")
 DisplayedLinesRe["fennec"] = re.compile(r".*Manager: Fully drawn org.mozilla.firefox/org.mozilla.gecko.BrowserApp.*$")
 DisplayedLinesRe["fennec-nightly"] = re.compile(r".*Manager: Fully drawn org.mozilla.fennec_aurora/org.mozilla.fenix.HomeActivity.*$")
 
-DisplayedLinesStripToTime["fenix-nightly"] = re.compile(r".*Manager: Fully drawn org.mozilla.fenix.nightly/org.mozilla.fenix.HomeActivity: \+")
-DisplayedLinesStripToTime["fenix-performance"] = re.compile(r".*Manager: Fully drawn org.mozilla.fenix.performancetest/org.mozilla.fenix.HomeActivity: \+")
-DisplayedLinesStripToTime["fennec"] = re.compile(r".*Manager: Fully drawn org.mozilla.firefox/org.mozilla.gecko.BrowserApp: \+")
+DisplayedLinesStripToTime["fullydrawn"] = re.compile(r".*Manager: Fully drawn org.mozilla.*/org.mozilla.*: \+")
+DisplayedLinesStripToTime["fullydrawn-total"] = re.compile(r".*Manager: Fully drawn org.mozilla.*/org.mozilla.*: .+\(total \+")
 
-# fennecNightly builds launch with MigrationDecisionActivity but redirect to HomeActivity, hence we need to use the total time.
-DisplayedLinesStripToTime["fennec-nightly"] = re.compile(r".*Manager: Fully drawn org.mozilla.fennec_aurora/org.mozilla.fenix.HomeActivity: .+\(total \+")
 
 DisplayedLinesTime = re.compile(r"""
   (?:(\d+)s)?   # Find seconds if present and store in the first group
@@ -289,10 +289,13 @@ class Runtime:
   @staticmethod
   def convert_displayed_line_to_time(displayed_line: str, product: str) -> float:
     str_result: str = ""
-    str_result = re.sub(DisplayedLinesStripToTime[product], "", displayed_line)
+    str_result = re.sub(DisplayedLinesStripToTime["fullydrawn-total"], "", displayed_line)
     m = re.search(DisplayedLinesTime, str_result)
     if m.group(1) is None and m.group(2) is None:
-      raise ValueError('unable to convert line to time')
+      str_result = re.sub(DisplayedLinesStripToTime["fullydrawn"], "", displayed_line)
+      m = re.search(DisplayedLinesTime, str_result)
+      if m.group(1) is None and m.group(2) is None:
+        raise ValueError('unable to convert line to time')
     return float(m.group(1) or 0) + float(m.group(2) or 0) / 1000
 
 
