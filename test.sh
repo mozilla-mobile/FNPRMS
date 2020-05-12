@@ -72,7 +72,6 @@ echo "run log is: ${run_log}"
 # to the repository's master branch at the remote named fenix-mobile.
 cwd=`pwd`
 cd ${log_dir}
-sweep_files_older_than 30 ${log_dir}
 # 2020-01-21 XXX bdekoz disable pushing ATM
 #git add *.log
 #git commit -m "${log_base} test"

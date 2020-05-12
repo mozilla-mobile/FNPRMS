@@ -33,28 +33,6 @@ echo "with prefix directory:" ${fpm_prefix_dir}
 echo "with log directory:" ${fpm_log_dir}
 
 
-# sweep_files_older_than
-#
-# Params:
-# 1: days
-# 2: path
-#
-# Files in the git repository at _path_ older than _days_
-# will be staged for removal.
-#
-# Return Value:
-# None
-function sweep_files_older_than {
-  days=$1
-  shift
-  path=$1
-
-  to_delete=`find $path -name '*' -and -type f -and -true -and -ctime +$days | grep -v git`
-  for i in ${to_delete}; do
-    git rm ${i}
-  done
-}
-
 # download_apk
 #
 # Params:
