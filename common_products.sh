@@ -21,21 +21,21 @@ APPLINK_URL="https://example.com"
 # because this is ultimately the final activity displayed.
 fenix_homeactivity_start_command='am start-activity org.mozilla.fenix.nightly/org.mozilla.fenix.HomeActivity'
 fenix_applink_start_command="am start-activity -t 'text/html' -d '$APPLINK_URL' -a android.intent.action.VIEW org.mozilla.fenix.nightly/org.mozilla.fenix.IntentReceiverActivity"
-fenix_url_template="https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/project.mobile.fenix.v2.nightly.DATE.latest/artifacts/public/build/armeabi-v7a/geckoNightly/target.apk"
+fenix_url_template="https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/mobile.v2.fenix.nightly.DATE.latest.armeabi-v7a/artifacts/public/build/armeabi-v7a/geckoNightly/target.apk"
 
 fenix_perf_homeactivity_start_command='am start-activity org.mozilla.fenix.performancetest/org.mozilla.fenix.HomeActivity'
 fenix_perf_applink_start_command="am start-activity -t 'text/html' -d '$APPLINK_URL' -a android.intent.action.VIEW org.mozilla.fenix.performancetest/org.mozilla.fenix.IntentReceiverActivity"
-#fenix_perf_url_template="https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/project.mobile.fenix.v2.nightly.DATE.latest/artifacts/public/build/armeabi-v7a/geckoNightly/target.apk"
+#fenix_perf_url_template=""
 
 fennec_homeactivity_start_command='am start-activity org.mozilla.fennec_aurora/.App'
 fennec_applink_start_command="am start-activity -t 'text/html' -d '$APPLINK_URL' -a android.intent.action.VIEW org.mozilla.fennec_aurora/org.mozilla.fenix.IntentReceiverActivity"
-fennec_url_template="https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/project.mobile.fenix.v2.fennec-nightly.DATE.latest/artifacts/public/build/arm64-v8a/geckoNightly/target.apk"
+fennec_url_template="https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/mobile.v2.fenix.fennec-nightly.DATE.latest.arm64-v8a/artifacts/public/build/arm64-v8a/geckoNightly/target.apk"
 
 fennec_68_homeactivity_start_command='am start-activity org.mozilla.firefox/.App'
 fennec_68_applink_start_command="am start-activity -t 'text/html' -d '$APPLINK_URL' -a android.intent.action.VIEW org.mozilla.firefox/org.mozilla.gecko.LauncherActivity"
-#fennec_68_url_template="https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/project.mobile.fenix.v2.fennec-nightly.DATE.latest/artifacts/public/build/arm64-v8a/geckoNightly/target.apk"
+#fennec_68_url_template=""
 
-fennec_url_template_g5="https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/project.mobile.fenix.v2.fennec-nightly.DATE.latest/artifacts/public/build/armeabi-v7a/geckoNightly/target.apk"
+fennec_url_template_g5="https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/mobile.v2.fenix.fennec-nightly.DATE.latest.armeabi-v7a/artifacts/public/build/armeabi-v7a/geckoNightly/target.apk"
 
 export fpm_product=$PRODUCTID
 
