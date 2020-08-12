@@ -14,11 +14,14 @@ cd ${iamhere}
 
 DEVICEID=$1
 PRODUCTID=$2
+DATESTAMP=$3
+if [ ! -n "$DATESTAMP" ]; then
+    DATESTAMP=`date +"%Y.%m.%d"`
+fi
 
 . common_devices.sh $DEVICEID
 . common_products.sh $PRODUCTID
-. common.sh
-
+. common.sh $DATESTAMP
 
 log_dir=$fpm_log_dir
 log_base=${test_date}
@@ -58,6 +61,8 @@ echo "run log is: ${run_log}"
   # Check to see if we could download an apk.
   if [ ${apk_downloaded} -eq 0 ]; then
     echo "Error: Failed to download an APK."
+     ./signal_alert.sh "${downloaded_apk_file} DNE" "No ${fpm_dev_name} apk"
+    exit 405;
   else
     # Run each of the three use cases 10 times.
     echo "Running tests"
@@ -66,17 +71,5 @@ echo "run log is: ${run_log}"
     run_test ${downloaded_apk_file} "${log_dir}/${log_base}-hanoob.log" "${apk_package}" "${homeactivity_start_command}" $fpm_iterations true
   fi
 } >> ${run_log} 2>&1
-
-# Assume that the files in _log_dir_ are under git version control. Update
-# that repository with the files that were just generated and push updates
-# to the repository's master branch at the remote named fenix-mobile.
-cwd=`pwd`
-cd ${log_dir}
-# 2020-01-21 XXX bdekoz disable pushing ATM
-#git add *.log
-#git commit -m "${log_base} test"
-#git push fenix-mobile master -q
-cd ${cwd}
-
 
 cd ${iwashere}

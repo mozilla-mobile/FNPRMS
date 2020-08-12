@@ -15,6 +15,8 @@ from typing import Callable, List, Mapping, MutableMapping, Pattern
 import os
 import argparse
 import warnings
+import logging as log
+
 
 # NB 1: log lines may contain either ActivityTaskManager or ActivityManager
 # NB 2: log lines may contain either time or time total, regardless of *Activity or intermediates
@@ -22,13 +24,13 @@ import warnings
 DisplayedLinesRe: MutableMapping[str, Pattern] = {}
 DisplayedLinesStripToTime: MutableMapping[str, Pattern] = {}
 
-DisplayedLinesRe["fenix-nightly"] = re.compile(r".*Manager: Fully drawn org.mozilla.fenix.nightly/org.mozilla.fenix.HomeActivity.*$")
+DisplayedLinesRe["fenix-nightly"] = re.compile(r".*Manager: Fully drawn org.mozilla.fenix/.HomeActivity.*$")
 DisplayedLinesRe["fenix-performance"] = re.compile(r".*Manager: Fully drawn org.mozilla.fenix.performancetest/org.mozilla.fenix.HomeActivity.*$")
 DisplayedLinesRe["fennec"] = re.compile(r".*Manager: Fully drawn org.mozilla.firefox/org.mozilla.gecko.BrowserApp.*$")
 DisplayedLinesRe["fennec-nightly"] = re.compile(r".*Manager: Fully drawn org.mozilla.fennec_aurora/org.mozilla.fenix.HomeActivity.*$")
 
-DisplayedLinesStripToTime["fullydrawn"] = re.compile(r".*Manager: Fully drawn org.mozilla.*/org.mozilla.*: \+")
-DisplayedLinesStripToTime["fullydrawn-total"] = re.compile(r".*Manager: Fully drawn org.mozilla.*/org.mozilla.*: .+\(total \+")
+DisplayedLinesStripToTime["fullydrawn"] = re.compile(r".*Manager: Fully drawn org.mozilla.*/*.*: \+")
+DisplayedLinesStripToTime["fullydrawn-total"] = re.compile(r".*Manager: Fully drawn org.mozilla.*/*.*: .+\(total \+")
 
 
 DisplayedLinesTime = re.compile(r"""
@@ -65,9 +67,21 @@ class Type(Enum):
       return ""
 
 
+def from_string(teststr: str) -> Type:
+  if teststr == "ha":
+    return Type.HA
+  elif teststr == "al":
+    return Type.AL
+  elif teststr == "hanoob":
+    return Type.HANOOB
+  else:
+    raise ValueError('Cannot convert ' + teststr + ' to enumeration of Type')
+
+
 class Runtime:
   def __init__(self: 'Runtime', product: str, tipe: Type, runlog_path: str):
-    print("Using " + product + " as a variant! " + runlog_path)
+    log.info("Using " + product + " as a variant")
+    log.info("Using log path of: " + runlog_path)
     self.runlog_path = runlog_path
     self.product = product
     self.tipe = tipe
@@ -119,17 +133,16 @@ class Runtime:
     For each, we use the timestamps of first and last logs to determine the duration.
     """
 
-    print_lines = True
     with open(self.runlog_path) as f:
       if self.product == 'fennec':
-        durations = Runtime.get_durations_fennec(f, print_lines)
+        durations = Runtime.get_durations_fennec(f)
       else:
-        durations = Runtime.get_durations_fenix(f, print_lines)
+        durations = Runtime.get_durations_fenix(f)
 
     return Runtime.calculate_average_app_link(durations)
 
   @staticmethod
-  def get_durations_fenix(f, print_lines):
+  def get_durations_fenix(f):
     """
     For each run in Fenix, we expect the following relevant logs:
       - START: Intent start
@@ -143,7 +156,7 @@ class Runtime:
     # Example: 02-28 15:45:23.895  1308  3152 I ActivityTaskManager: START u0 {act=android.intent.action.VIEW dat=https://example.com/... flg=0x10000000 cmp=org.mozilla.fenix.nightly/org.mozilla.fenix.IntentReceiverActivity} from uid 2000
     fenix_intent = re.compile(
       LOGCAT_TIMESTAMP_CAPTURE_RE +
-      '.*Activity.*Manager: START.*org.mozilla.fennec_aurora/org.mozilla.fenix.IntentReceiverActivity')
+      '.*Activity.*Manager: START.*org.mozilla.fenix/org.mozilla.fenix.IntentReceiverActivity')
 
     # Example: 02-28 15:45:03.910 D/GeckoSession( 9812): handleMessage GeckoView:PageStart uri=https://example.com/
     fenix_page_start = re.compile(
@@ -166,8 +179,7 @@ class Runtime:
         if intent:
           raise ValueError('found two start lines in a row')
         intent = match.group(1)
-        if print_lines:
-          print(match.group(0))
+        log.info(match.group(0))
         continue
 
       match = fenix_page_start.match(line)
@@ -182,8 +194,7 @@ class Runtime:
         if not intent:
           raise ValueError('intent was not set')
         stop = match.group(1)
-        if print_lines:
-          print(match.group(0))
+        log.info(match.group(0))
 
         diff = Runtime.get_duration_between_timestamps(intent, stop)
         durations.append(diff)
@@ -192,11 +203,11 @@ class Runtime:
         intent = ''
         page_start_count = 0
 
-    print('found iteration count: ' + str(len(durations)))  # sanity check.
+    log.info('found iteration count: ' + str(len(durations)))
     return durations
 
   @staticmethod
-  def get_durations_fennec(f, print_lines):
+  def get_durations_fennec(f):
     """
     For each run in Fennec, we expect the following relevant logs:
       - START: Intent start
@@ -225,8 +236,7 @@ class Runtime:
         if start:
           raise ValueError('found two start lines in a row')
         start = match.group(1)
-        if print_lines:
-          print(match.group(0))
+        log.info(match.group(0))
         continue
 
       match = fennec_stop.match(line)
@@ -234,8 +244,7 @@ class Runtime:
         if not start:
           raise ValueError('start was not set')
         stop = match.group(1)
-        if print_lines:
-          print(match.group(0))
+        log.info(match.group(0))
 
         diff = Runtime.get_duration_between_timestamps(start, stop)
         durations.append(diff)
@@ -352,20 +361,52 @@ def calculate(dirname: str, tipe: Type, product: str, formatter: Callable[[Mappi
     pass
 
 
+def calculate_specific(dirname: str, product: str, datestr: str, testtipe: str)->str:
+  stats_filename: str = dirname + "/" + datestr + "-" + testtipe + ".log"
+  runtime: Runtime
+  tipe: Type
+
+  if not stats_filename:
+    raise RuntimeError("No input files found matching: " + stats_filename)
+
+  tipe = from_string(testtipe)
+  runtime = Runtime(product, tipe, stats_filename)
+
+  result: str = "NA"
+  try:
+    result = str(runtime.time())
+  except ValueError as ve:
+    warnings.warn('ValueError - ' + str(ve), RuntimeWarning)
+  print(result)
+
+
 if __name__ == "__main__":
   input_dir: str = ""
   output_dir: str = ""
   product: str = ""
+  datestr: str = ""
+  teststr: str = ""
 
   parser = argparse.ArgumentParser(description="Calculate statistics from timing runs.")
   parser.add_argument('--input_dir', type=str, required=True)
   parser.add_argument('--output_dir', type=str, required=True)
   parser.add_argument('--product', type=str, required=True)
+  parser.add_argument('--date_stamp', type=str, default="", required=False)
+  parser.add_argument('--test_type', type=str, default="", required=False)
+  parser.add_argument('--verbose', '-v', action='count', default=0)
   arguments = parser.parse_args()
+
+  if arguments.verbose:
+    log.basicConfig(format="%(levelname)s: %(message)s", level=log.DEBUG)
+    log.info("Verbose log output enabled.")
+  else:
+    log.basicConfig(format="%(levelname)s: %(message)s")
 
   input_dir = arguments.input_dir
   output_dir = arguments.output_dir
   product = arguments.product
+  datestr = arguments.date_stamp
+  teststr = arguments.test_type
 
   # This variant is added on the TOR machine to make common_products.sh work
   # with a separate armv7 URL. However, this script won't work because it hardcodes
@@ -377,13 +418,18 @@ if __name__ == "__main__":
   if (not validate_product(product)):
     print("Cannot run with invalid product: " + product + ".")
   else:
-    # Print results in csv format.
-    calculate(input_dir, Type.HA, product, csv_format_calculations, output_dir + "/" + "ha-results.csv")
-    calculate(input_dir, Type.AL, product, csv_format_calculations, output_dir + "/" + "al-results.csv")
-    calculate(input_dir, Type.HANOOB, product, csv_format_calculations, output_dir + "/" + "hanoob-results.csv")
+    # If specific date and test type requested, return it.
+    if (datestr and teststr):
+      calculate_specific(input_dir, product, datestr, teststr)
+    else:
+      # Print results for all log files found.
+      # Print results in csv format.
+      calculate(input_dir, Type.HA, product, csv_format_calculations, output_dir + "/" + "ha-results.csv")
+      calculate(input_dir, Type.AL, product, csv_format_calculations, output_dir + "/" + "al-results.csv")
+      calculate(input_dir, Type.HANOOB, product, csv_format_calculations, output_dir + "/" + "hanoob-results.csv")
 
-    # Print results in json format.
-    calculate(input_dir, Type.HA, product, json_format_calculations, output_dir + "/" + "ha-results.json")
-    calculate(input_dir, Type.AL, product, json_format_calculations, output_dir + "/" + "al-results.json")
-    calculate(input_dir, Type.HANOOB, product, json_format_calculations, output_dir + "/" + "hanoob-results.json")
+      # Print results in json format.
+      calculate(input_dir, Type.HA, product, json_format_calculations, output_dir + "/" + "ha-results.json")
+      calculate(input_dir, Type.AL, product, json_format_calculations, output_dir + "/" + "al-results.json")
+      calculate(input_dir, Type.HANOOB, product, json_format_calculations, output_dir + "/" + "hanoob-results.json")
   pass

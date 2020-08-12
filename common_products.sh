@@ -21,7 +21,8 @@ APPLINK_URL="https://example.com"
 # because this is ultimately the final activity displayed.
 fenix_homeactivity_start_command='am start-activity org.mozilla.fenix/org.mozilla.fenix.HomeActivity'
 fenix_applink_start_command="am start-activity -t 'text/html' -d '$APPLINK_URL' -a android.intent.action.VIEW org.mozilla.fenix/org.mozilla.fenix.IntentReceiverActivity"
-fenix_url_template="https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/mobile.v2.fenix.nightly.DATE.latest.armeabi-v7a/artifacts/public/build/armeabi-v7a/geckoNightly/target.apk"
+fenix_url_template="https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/mobile.v2.fenix.nightly.DATE.latest.armeabi-v7a/artifacts/public/build/armeabi-v7a/target.apk"
+
 
 fenix_perf_homeactivity_start_command='am start-activity org.mozilla.fenix.performancetest/org.mozilla.fenix.HomeActivity'
 fenix_perf_applink_start_command="am start-activity -t 'text/html' -d '$APPLINK_URL' -a android.intent.action.VIEW org.mozilla.fenix.performancetest/org.mozilla.fenix.IntentReceiverActivity"
@@ -47,7 +48,7 @@ if [ "$PRODUCTID" = "fennec-nightly" ]; then
 fi
 
 if [ "$PRODUCTID" = "fenix-nightly" ]; then
-    export apk_package=org.mozilla.fenix.nightly
+    export apk_package=org.mozilla.fenix
     export apk_url_template=$fenix_url_template
     export applink_start_command=$fenix_applink_start_command
     export homeactivity_start_command=$fenix_homeactivity_start_command

@@ -6,31 +6,37 @@
 #
 # Common functions used throughout FNPRMS
 
+# test date, in ISO form "2020.02.21"
+DATESTAMP=$1
+export test_date="${DATESTAMP}"
+echo "with date: ${DATESTAMP}"
+
 # number of harness iterations
 export fpm_iterations=100
 
 # base directory for harness output
 export fpm_prefix_dir=/opt/mozilla/FNPRMS
 
-# directory for harness output from scheduled runs
-export fpm_log_dir=/opt/fnprms/run_logs
+# directory for results in (csv, json) for checkin to github
+export fpm_results_dir=${fpm_prefix_dir}_results
 
-# sanity check output directory exits
-if [ ! -d $fpm_log_dir ]; then
-   mkdir -p $fpm_log_dir
+# To continue, product and device must be set.
+if [ ! -n "$fpm_dev_name" ] || [ ! -n "$fpm_product" ]; then
+    echo "Exiting early as product and or device must be set to continue."
+else
+    # directory for harness output from scheduled runs
+    export fpm_log_dir=${fpm_prefix_dir}_${HOSTNAME}_${fpm_dev_name}_${fpm_product}
+
+    # application binary location and name
+    test_date_path=`echo $test_date | sed 's/\./\//g'`
+    export dl_apk_path=`printf "%s/%s/%s" \`pwd\` "bin" "${test_date_path}"`;
+    export dl_apk_name=${fpm_product}.apk
+
+    # Report environmental and arguments to log file
+    echo "with iterations:" ${fpm_iterations}
+    echo "with prefix directory:" ${fpm_prefix_dir}
+    echo "with log directory:" ${fpm_log_dir}
 fi
-
-# test date, in ISO form "2020.02.21"
-export test_date=`date +"%Y.%m.%d"`
-
-# application binary location and name
-export dl_apk_path=`printf "%s/%s/" \`pwd\` \`echo "bin/"\` \`date +"%Y/%m/%d"\``;
-export dl_apk_name=${fpm_product}.apk
-
-# Report enviornmental and arguments to log file
-echo "with iterations:" ${fpm_iterations}
-echo "with prefix directory:" ${fpm_prefix_dir}
-echo "with log directory:" ${fpm_log_dir}
 
 
 # download_apk
@@ -57,13 +63,14 @@ function download_apk {
   result=0
 
   # If the apk already exists, don't bother getting it again.
+  echo "Looking for apk in ${output_file_path}"
   if [ -e ${output_file_path} ]; then
     echo "Not downloading a new apk; using existing."
     return 0
   fi
 
   apk_download_url=`echo ${apk_url_template} | sed "s/DATE/${date_to_fetch}/g"`;
-  echo "Downloading apk."
+  echo "Downloading apk: ${apk_download_url}"
   curl -fsL --create-dirs --output ${output_file_path} ${apk_download_url} 2>&1 > /dev/null
   result=$?
   echo "Done downloading apk."
@@ -164,14 +171,17 @@ function run_test {
   # this to try to eliminate noise.
   $ADB shell "am kill-all"
 
-
   # Clearing the log here so that we don't record the time of the
   # first start (above)
   $ADB logcat --clear
   $ADB logcat -G 2M
 
+  # Add start_command to log file
+  echo "Test using ${start_command}" >> ${log_file} 2>&1
+
   for i in `seq ${tests}`; do
-    echo "Starting by using ${start_command}"
+    $ADB logcat --clear
+    echo "FNPRMS Iteration ${i}" >> ${log_file} 2>&1
 
     $ADB shell "${start_command}"
 
@@ -181,12 +191,12 @@ function run_test {
     $ADB shell "input keyevent HOME"
     sleep 5
     $ADB shell "am force-stop ${package_name}"
+    $ADB logcat -d >> ${log_file} 2>&1
+    echo "" >> ${log_file} 2>&1
 
     # Wait a bit after killing the process so Android has time to
     # reclaim memory and generally "settle down" to reduce
     # statistical noise.
     sleep 1
   done;
-
-  $ADB logcat -d >> ${log_file} 2>&1
 }

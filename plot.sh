@@ -26,10 +26,3 @@ cd ${log_dir}
 gnuplot ${iamhere}/ha.plot
 gnuplot ${iamhere}/al.plot
 gnuplot ${iamhere}/hanoob.plot
-
-#git add *.png
-#git commit -m "${log_base} Graph the results."
-#git push fenix-mobile master -q
-cd ${cwd}
-
-cd ${iwashere}
