@@ -47,7 +47,7 @@ if [ "$PRODUCTID" = "fennec-nightly" ]; then
 fi
 
 if [ "$PRODUCTID" = "fenix-nightly" ]; then
-    export apk_package=org.mozilla.fenix.nightly
+    export apk_package=org.mozilla.fenix
     export apk_url_template=$fenix_url_template
     export applink_start_command=$fenix_applink_start_command
     export homeactivity_start_command=$fenix_homeactivity_start_command
