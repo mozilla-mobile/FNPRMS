@@ -25,7 +25,7 @@ DisplayedLinesStripToTime: MutableMapping[str, Pattern] = {}
 DisplayedLinesRe["fenix-nightly"] = re.compile(r".*Manager: Fully drawn org.mozilla.fenix/org.mozilla.fenix.HomeActivity.*$")
 DisplayedLinesRe["fenix-performance"] = re.compile(r".*Manager: Fully drawn org.mozilla.fenix.performancetest/org.mozilla.fenix.HomeActivity.*$")
 DisplayedLinesRe["fennec"] = re.compile(r".*Manager: Fully drawn org.mozilla.firefox/org.mozilla.gecko.BrowserApp.*$")
-DisplayedLinesRe["fennec-nightly"] = re.compile(r".*Manager: Fully drawn org.mozilla.fennec_aurora/org.mozilla.fenix.HomeActivity.*$")
+DisplayedLinesRe["fennec-nightly"] = re.compile(r".*Manager: Fully drawn org.mozilla.fenix/org.mozilla.fenix.HomeActivity.*$")
 
 DisplayedLinesStripToTime["fullydrawn"] = re.compile(r".*Manager: Fully drawn org.mozilla.*/org.mozilla.*: \+")
 DisplayedLinesStripToTime["fullydrawn-total"] = re.compile(r".*Manager: Fully drawn org.mozilla.*/org.mozilla.*: .+\(total \+")
@@ -143,7 +143,7 @@ class Runtime:
     # Example: 02-28 15:45:23.895  1308  3152 I ActivityTaskManager: START u0 {act=android.intent.action.VIEW dat=https://example.com/... flg=0x10000000 cmp=org.mozilla.fenix.nightly/org.mozilla.fenix.IntentReceiverActivity} from uid 2000
     fenix_intent = re.compile(
       LOGCAT_TIMESTAMP_CAPTURE_RE +
-      '.*Activity.*Manager: START.*org.mozilla.fenix/org.mozilla.fenix.IntentReceiverActivity')
+      '.*Activity.*Manager.*: START.*org.mozilla.fenix/.IntentReceiverActivity')
 
     # Example: 02-28 15:45:03.910 D/GeckoSession( 9812): handleMessage GeckoView:PageStart uri=https://example.com/
     fenix_page_start = re.compile(

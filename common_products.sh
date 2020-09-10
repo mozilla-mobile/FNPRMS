@@ -27,8 +27,8 @@ fenix_perf_homeactivity_start_command='am start-activity org.mozilla.fenix.perfo
 fenix_perf_applink_start_command="am start-activity -t 'text/html' -d '$APPLINK_URL' -a android.intent.action.VIEW org.mozilla.fenix.performancetest/org.mozilla.fenix.IntentReceiverActivity"
 #fenix_perf_url_template=""
 
-fennec_homeactivity_start_command='am start-activity org.mozilla.fennec_aurora/.App'
-fennec_applink_start_command="am start-activity -t 'text/html' -d '$APPLINK_URL' -a android.intent.action.VIEW org.mozilla.fennec_aurora/org.mozilla.fenix.IntentReceiverActivity"
+fennec_homeactivity_start_command='am start-activity org.mozilla.fenix/.App'
+fennec_applink_start_command="am start-activity -t 'text/html' -d '$APPLINK_URL' -a android.intent.action.VIEW org.mozilla.fenix/org.mozilla.fenix.IntentReceiverActivity"
 fennec_url_template="https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/mobile.v2.fenix.fennec-nightly.DATE.latest.arm64-v8a/artifacts/public/build/arm64-v8a/geckoNightly/target.apk"
 
 fennec_68_homeactivity_start_command='am start-activity org.mozilla.firefox/.App'
@@ -40,7 +40,7 @@ fennec_url_template_g5="https://firefox-ci-tc.services.mozilla.com/api/index/v1/
 export fpm_product=$PRODUCTID
 
 if [ "$PRODUCTID" = "fennec-nightly" ]; then
-    export apk_package=org.mozilla.fennec_aurora
+    export apk_package=org.mozilla.fenix
     export apk_url_template=$fennec_url_template
     export applink_start_command=$fennec_applink_start_command
     export homeactivity_start_command=$fennec_homeactivity_start_command
@@ -54,7 +54,7 @@ if [ "$PRODUCTID" = "fenix-nightly" ]; then
 fi
 
 if [ "$PRODUCTID" = "fennec-nightly-g5" ]; then
-    export apk_package=org.mozilla.fennec_aurora
+    export apk_package=org.mozilla.fenix
     export apk_url_template=$fennec_url_template_g5
     export applink_start_command=$fennec_applink_start_command
     export homeactivity_start_command=$fennec_homeactivity_start_command
