@@ -1,3 +1,12 @@
+IN ORDER TO RUN WITH CONDITIONED PROFILES, YOU MUST:
+- Run mach perftest VIEW on the device (it'll cache the latest profiles in `~/.condprof-cache`)
+- Validate mach perftest left the following file on the device: `/data/local/tmp/org.mozilla.fenix-geckoview-config.yaml`
+- Comment out APK uninstall/install
+- Install the Nightly build you wish to test
+- Run `adb shell am set-debug-app --persistent org.mozilla.fenix`
+
+Note: you must run `adb shell am clear-debug-app` afterwards to disable testing behavior.
+
 # Fenix Nightly Performance Regression Monitoring System
 Scripts to automatically test the startup performance of Fenix's
 nightly variant of Fenix *or* manually test the startup performance of
