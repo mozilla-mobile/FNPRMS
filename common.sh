@@ -171,6 +171,15 @@ function run_test {
   $ADB logcat -G 2M
 
   for i in `seq ${tests}`; do
+    PPATH=/mnt/sdcard/org.mozilla.fenix-geckodriver-profile
+    PFILE=profile-p2_aarch64-fenix.nightly-settled-default.tgz
+    #PFILE=profile-g5-fenix.nightly-settled-default.tgz
+    $ADB shell rm -rf $PPATH
+    #$ADB push sb/profile-g5 $PPATH
+    $ADB shell mkdir -p $PPATH
+    $ADB push ~/.condprof-cache/$PFILE $PPATH
+    $ADB shell tar -C $PPATH -xf $PPATH/$PFILE # gs5 can't tar on device
+
     echo "Starting by using ${start_command}"
 
     $ADB shell "${start_command}"
