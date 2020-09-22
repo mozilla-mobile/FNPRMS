@@ -153,6 +153,9 @@ function run_test {
     return
   fi
 
+  # Extra debug code will run if this is active: let' ensure it's not.
+  $ADB shell am clear-debug-app
+
   # Now, do a single start to get all that stuff out of the way.
   $ADB shell "${warmup_start_command}"
   # Sleep here in case it takes a while for the app to start.
