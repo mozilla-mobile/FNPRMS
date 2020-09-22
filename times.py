@@ -16,6 +16,9 @@ import os
 import argparse
 import warnings
 
+# Change to True to enable debug logging and stuff.
+DEBUG = False
+
 # NB 1: log lines may contain either ActivityTaskManager or ActivityManager
 # NB 2: log lines may contain either time or time total, regardless of *Activity or intermediates
 # see: https://developer.android.com/topic/performance/vitals/launch-time#time-initial
@@ -119,7 +122,7 @@ class Runtime:
     For each, we use the timestamps of first and last logs to determine the duration.
     """
 
-    print_lines = True
+    print_lines = DEBUG
     with open(self.runlog_path) as f:
       if self.product == 'fennec':
         durations = Runtime.get_durations_fennec(f, print_lines)
