@@ -165,15 +165,15 @@ class Runtime:
     for line in f:
       match = fenix_intent.match(line)
       if match:
+        if print_lines: print(match.group(0))
         if intent:
           raise ValueError('found two start lines in a row')
         intent = match.group(1)
-        if print_lines:
-          print(match.group(0))
         continue
 
       match = fenix_page_start.match(line)
       if match:
+        if print_lines: print(match.group(0))
         if not intent or page_start_count > START_COUNT:
           raise ValueError('expected START to be seen first')
         page_start_count += 1
@@ -181,11 +181,10 @@ class Runtime:
 
       match = fenix_stop.match(line)
       if match and page_start_count == START_COUNT:
+        if print_lines: print(match.group(0))
         if not intent:
           raise ValueError('intent was not set')
         stop = match.group(1)
-        if print_lines:
-          print(match.group(0))
 
         diff = Runtime.get_duration_between_timestamps(intent, stop)
         durations.append(diff)
