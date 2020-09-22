@@ -155,6 +155,8 @@ class Runtime:
       LOGCAT_TIMESTAMP_CAPTURE_RE +
       '.*GeckoSession.* handleMessage GeckoView:PageStop uri=null')
 
+    START_COUNT = 2
+
     # This repeats get_durations_fennec but it's quicker/easier to do this than to come up with
     # a combined solution.
     durations = []
@@ -172,13 +174,13 @@ class Runtime:
 
       match = fenix_page_start.match(line)
       if match:
-        if not intent or page_start_count > 3:
+        if not intent or page_start_count > START_COUNT:
           raise ValueError('expected START to be seen first')
         page_start_count += 1
         continue
 
       match = fenix_stop.match(line)
-      if match and page_start_count == 3:
+      if match and page_start_count == START_COUNT:
         if not intent:
           raise ValueError('intent was not set')
         stop = match.group(1)
