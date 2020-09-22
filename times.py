@@ -15,6 +15,7 @@ from typing import Callable, List, Mapping, MutableMapping, Pattern
 import os
 import argparse
 import warnings
+from pprint import pprint
 
 # Change to True to enable debug logging and stuff.
 DEBUG = False
@@ -128,6 +129,7 @@ class Runtime:
         durations = Runtime.get_durations_fennec(f, print_lines)
       else:
         durations = Runtime.get_durations_fenix(f, print_lines)
+    pprint([str(d)[6:] for d in durations])
 
     return Runtime.calculate_average_app_link(durations)
 
