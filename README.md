@@ -1,3 +1,5 @@
+# _This system is temporarily replaced by [backfill.py](https://github.com/mozilla-mobile/perf-tools/blob/main/backfill.py) which is expected to be replaced by mozperftest in mozilla-central._
+
 # Fenix Nightly Performance Regression Monitoring System
 Scripts to automatically test the startup performance of Fenix's
 nightly variant of Fenix *or* manually test the startup performance of
